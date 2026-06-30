@@ -1,110 +1,120 @@
 /* ============================================================
    MedStorage — Design System Neumórfico
-   Paleta: Slate (#394a51) · Sage (#7fa99b) · Cream (#fbf2d5) · Amber (#fdc57b)
+   Paleta: Ice (#f3f9fb) · Indigo (#474f85) · Turquoise (#51e3d4) · Warm (#f3ecd3)
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* ─────────────────────────────────────────
-   TEMA CLARO  (fundo cream, texto slate)
+   TEMA CLARO  (fundo ice, texto índigo)
 ───────────────────────────────────────── */
 :root,
 [data-theme='light'] {
   /* Superfície */
-  --bg:        #fbf2d5;
-  --shadow-d:  #d4c9b2;
-  --shadow-l:  #ffffff;
+  --bg:       #f3f9fb;
+  --shadow-d: #cdd5d8;
+  --shadow-l: #ffffff;
 
   /* Tipografia */
-  --text:      #394a51;
-  --text-muted: #5a7278;
-  --text-soft:  #8ea8ad;
+  --text:      #474f85;
+  --text-muted: #6870a8;
+  --text-soft:  #9aa0c5;
 
-  /* Accent principal — âmbar */
-  --accent:    #fdc57b;
-  --accent-h:  #f5ad52;          /* hover */
-  --accent-fade: rgba(253,197,123,.14);
-  --text-on-accent: #394a51;     /* texto sobre fundo âmbar */
+  /* Accent principal — turquesa */
+  --accent:         #51e3d4;
+  --accent-h:       #3acfc0;
+  --accent-fade:    rgba(81, 227, 212, 0.13);
+  --text-on-accent: #474f85;
 
-  /* Secundário — sage */
-  --secondary:  #7fa99b;
-  --secondary-h: #6a9488;
-  --secondary-fade: rgba(127,169,155,.13);
+  /* Secundário — índigo (usado em brand mark, avatars, sidebar) */
+  --secondary:       #474f85;
+  --secondary-h:     #363e6e;
+  --secondary-fade:  rgba(71, 79, 133, 0.09);
+  --secondary-text:  #f3f9fb;
+
+  /* Warm cream — acentos quentes */
+  --warm:       #f3ecd3;
+  --warm-fade:  rgba(243, 236, 211, 0.6);
+  --warm-text:  #7a5c2e;
 
   /* Navegação */
-  --nav-active: rgba(127,169,155,.18);
-  --border:     rgba(57,74,81,.09);
+  --nav-active: rgba(81, 227, 212, 0.14);
+  --border:     rgba(71, 79, 133, 0.10);
 
-  /* Status de pedido */
-  --tag-pend:       #fff8ec; --tag-pend-t:    #8a5a0a; --tag-pend-dot:    #fdc57b;
-  --tag-confirm:    #eef6f3; --tag-confirm-t: #2d6b5a; --tag-confirm-dot: #7fa99b;
-  --tag-sep:        #e8f4f2; --tag-sep-t:     #2a5e54; --tag-sep-dot:     #5f9e91;
-  --tag-pronto:     #edf7f4; --tag-pronto-t:  #1e5c4a; --tag-pronto-dot:  #3d9a7e;
-  --tag-fin:        #f0f9f6; --tag-fin-t:     #1a4d3e; --tag-fin-dot:     #2d8a6d;
-  --tag-canc:       #fdf0f0; --tag-canc-t:    #7f2a2a; --tag-canc-dot:    #d95b5b;
+  /* ── Status de pedido ─────────────────── */
+  --tag-pend:       #f3ecd3; --tag-pend-t:    #7a5c2e; --tag-pend-dot:    #d4a852;
+  --tag-confirm:    rgba(71,79,133,.10); --tag-confirm-t: #474f85; --tag-confirm-dot: #474f85;
+  --tag-sep:        rgba(81,227,212,.13); --tag-sep-t:   #2aafa2; --tag-sep-dot:     #51e3d4;
+  --tag-pronto:     rgba(34,197,94,.10);  --tag-pronto-t: #15803d; --tag-pronto-dot: #22c55e;
+  --tag-fin:        rgba(20,184,166,.12); --tag-fin-t:   #0f766e; --tag-fin-dot:     #14b8a6;
+  --tag-canc:       rgba(239,68,68,.09);  --tag-canc-t:  #b91c1c; --tag-canc-dot:    #ef4444;
 
-  /* Estoque */
-  --ok:      #2d8a6d; --ok-bg:   rgba(45,138,109,.10); --ok-bar:   #3db88f;
-  --warn:    #c87c20; --warn-bg: rgba(200,124,32,.10);  --warn-bar: #fdc57b;
-  --crit:    #d04545; --crit-bg: rgba(208,69,69,.09);   --crit-bar: #e06060;
+  /* ── Estoque ──────────────────────────── */
+  --ok:      #0f9e87; --ok-bg:   rgba(15,158,135,.10); --ok-bar:   #51e3d4;
+  --warn:    #b45309; --warn-bg: rgba(180,83,9,.10);   --warn-bar: #f59e0b;
+  --crit:    #b91c1c; --crit-bg: rgba(185,28,28,.09);  --crit-bar: #ef4444;
 
-  /* Roles (admin) */
-  --role-admin-bg: rgba(57,74,81,.10);    --role-admin-t: #394a51;
-  --role-ger-bg:   rgba(127,169,155,.14); --role-ger-t:   #2d6b5a;
-  --role-vnd-bg:   rgba(253,197,123,.15); --role-vnd-t:   #8a5a0a;
-  --on-t:  #2d8a6d;
-  --off-t: #d04545;
-  --pill-ok-bg:   rgba(45,138,109,.10); --pill-ok-t:   #1e5c4a;
-  --pill-warn-bg: rgba(200,124,32,.10);  --pill-warn-t: #7a4a10;
+  /* ── Roles ────────────────────────────── */
+  --role-admin-bg: rgba(71,79,133,.11);   --role-admin-t: #474f85;
+  --role-ger-bg:   rgba(81,227,212,.13);  --role-ger-t:   #0f766e;
+  --role-vnd-bg:   rgba(243,236,211,.80); --role-vnd-t:   #7a5c2e;
+  --on-t:  #0f9e87;
+  --off-t: #b91c1c;
+  --pill-ok-bg:   rgba(15,158,135,.10); --pill-ok-t:   #0f766e;
+  --pill-warn-bg: rgba(243,236,211,.80); --pill-warn-t: #7a5c2e;
 }
 
 /* ─────────────────────────────────────────
-   TEMA ESCURO  (fundo slate, texto cream)
+   TEMA ESCURO  (fundo índigo, texto ice)
 ───────────────────────────────────────── */
 [data-theme='dark'] {
-  --bg:        #394a51;
-  --shadow-d:  #28363c;
-  --shadow-l:  #4a5e68;
+  --bg:       #474f85;
+  --shadow-d: #363c6a;
+  --shadow-l: #5860a0;
 
-  --text:       #fbf2d5;
-  --text-muted: #a8c4c0;
-  --text-soft:  #6a8f8a;
+  --text:       #f3f9fb;
+  --text-muted: #b0b6d8;
+  --text-soft:  #737ab8;
 
-  --accent:    #fdc57b;
-  --accent-h:  #f5ad52;
-  --accent-fade: rgba(253,197,123,.12);
-  --text-on-accent: #394a51;
+  --accent:         #51e3d4;
+  --accent-h:       #6aece0;
+  --accent-fade:    rgba(81, 227, 212, 0.14);
+  --text-on-accent: #474f85;
 
-  --secondary:  #7fa99b;
-  --secondary-h: #99c0b4;
-  --secondary-fade: rgba(127,169,155,.12);
+  --secondary:      #f3ecd3;
+  --secondary-h:    #f9f4e6;
+  --secondary-fade: rgba(243, 236, 211, 0.10);
+  --secondary-text: #474f85;
 
-  --nav-active: rgba(127,169,155,.20);
-  --border:     rgba(251,242,213,.09);
+  --warm:       #f3ecd3;
+  --warm-fade:  rgba(243, 236, 211, 0.12);
+  --warm-text:  #f3ecd3;
 
-  --tag-pend:       rgba(253,197,123,.12); --tag-pend-t:    #fdd9a0; --tag-pend-dot:    #fdc57b;
-  --tag-confirm:    rgba(127,169,155,.14); --tag-confirm-t: #a8d4cc; --tag-confirm-dot: #7fa99b;
-  --tag-sep:        rgba(95,158,145,.14);  --tag-sep-t:     #90c8bf; --tag-sep-dot:     #5f9e91;
-  --tag-pronto:     rgba(61,184,143,.12);  --tag-pronto-t:  #7fd4b8; --tag-pronto-dot:  #3db88f;
-  --tag-fin:        rgba(45,138,109,.12);  --tag-fin-t:     #6ecaae; --tag-fin-dot:     #2d8a6d;
-  --tag-canc:       rgba(208,69,69,.12);   --tag-canc-t:    #f0a0a0; --tag-canc-dot:    #d04545;
+  --nav-active: rgba(81, 227, 212, 0.18);
+  --border:     rgba(243, 249, 251, 0.10);
 
-  --ok:      #3db88f; --ok-bg:   rgba(61,184,143,.12);  --ok-bar:   #3db88f;
-  --warn:    #fdc57b; --warn-bg: rgba(253,197,123,.12);  --warn-bar: #fdc57b;
-  --crit:    #e07070; --crit-bg: rgba(224,112,112,.12);  --crit-bar: #e07070;
+  --tag-pend:       rgba(243,236,211,.14); --tag-pend-t:    #f3ecd3; --tag-pend-dot:    #f3ecd3;
+  --tag-confirm:    rgba(243,249,251,.12); --tag-confirm-t: #b0b6d8; --tag-confirm-dot: #b0b6d8;
+  --tag-sep:        rgba(81,227,212,.16);  --tag-sep-t:     #51e3d4; --tag-sep-dot:     #51e3d4;
+  --tag-pronto:     rgba(34,197,94,.14);   --tag-pronto-t:  #86efac; --tag-pronto-dot:  #4ade80;
+  --tag-fin:        rgba(20,184,166,.16);  --tag-fin-t:     #5eead4; --tag-fin-dot:     #2dd4bf;
+  --tag-canc:       rgba(239,68,68,.14);   --tag-canc-t:    #fca5a5; --tag-canc-dot:    #f87171;
 
-  --role-admin-bg: rgba(251,242,213,.10); --role-admin-t: #fbf2d5;
-  --role-ger-bg:   rgba(127,169,155,.16); --role-ger-t:   #a8d4cc;
-  --role-vnd-bg:   rgba(253,197,123,.14); --role-vnd-t:   #fdd9a0;
-  --on-t:  #3db88f;
-  --off-t: #e07070;
-  --pill-ok-bg:   rgba(61,184,143,.12);  --pill-ok-t:   #6ecaae;
-  --pill-warn-bg: rgba(253,197,123,.12); --pill-warn-t: #fdd9a0;
+  --ok:      #51e3d4; --ok-bg:   rgba(81,227,212,.14);  --ok-bar:   #51e3d4;
+  --warn:    #f3ecd3; --warn-bg: rgba(243,236,211,.12);  --warn-bar: #fbbf24;
+  --crit:    #f87171; --crit-bg: rgba(248,113,113,.14);  --crit-bar: #f87171;
+
+  --role-admin-bg: rgba(243,249,251,.12); --role-admin-t: #f3f9fb;
+  --role-ger-bg:   rgba(81,227,212,.16);  --role-ger-t:   #51e3d4;
+  --role-vnd-bg:   rgba(243,236,211,.14); --role-vnd-t:   #f3ecd3;
+  --on-t:  #51e3d4;
+  --off-t: #f87171;
+  --pill-ok-bg:   rgba(81,227,212,.14);  --pill-ok-t:   #51e3d4;
+  --pill-warn-bg: rgba(243,236,211,.12); --pill-warn-t: #f3ecd3;
 }
 
 /* ─────────────────────────────────────────
-   Base (dentro de @layer para não sobrescrever
-   utilities do Tailwind que ficam em @layer utilities)
+   Base
 ───────────────────────────────────────── */
 @layer base {
   body {
@@ -153,7 +163,7 @@
   box-shadow:
     inset 5px 5px 12px var(--shadow-d),
     inset -5px -5px 12px var(--shadow-l),
-    0 0 0 2.5px var(--secondary);
+    0 0 0 2.5px var(--accent);
 }
 .neu-sidebar {
   background: var(--bg);
@@ -169,6 +179,7 @@
 ───────────────────────────────────────── */
 .text-accent    { color: var(--accent); }
 .text-secondary { color: var(--secondary); }
+.text-warm      { color: var(--warm-text); }
 .text-muted     { color: var(--text-muted); }
 .text-soft      { color: var(--text-soft); }
 .text-ok        { color: var(--ok); }

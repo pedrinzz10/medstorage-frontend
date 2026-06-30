@@ -121,7 +121,7 @@ export function LandingPage() {
             MS
           </div>
           <span className="text-[16px] font-extrabold tracking-[-0.4px]">
-            Med<em className="not-italic" style={{ color: 'var(--secondary)' }}>Storage</em>
+            Med<em className="not-italic" style={{ color: 'var(--accent)' }}>Storage</em>
           </span>
         </div>
 
@@ -176,7 +176,7 @@ export function LandingPage() {
               >
                 Distribuidora médica
                 <br />
-                <em className="not-italic" style={{ color: 'var(--secondary)' }}>sob controle total</em>
+                <em className="not-italic" style={{ color: 'var(--accent)' }}>sob controle total</em>
               </h1>
 
               <p
@@ -258,7 +258,7 @@ export function LandingPage() {
                     <p>Reservado</p>
                   </div>
                   <div>
-                    <p className="font-bold text-[18px]" style={{ color: 'var(--secondary)' }}>362</p>
+                    <p className="font-bold text-[18px]" style={{ color: 'var(--text)' }}>362</p>
                     <p>Total</p>
                   </div>
                 </div>
@@ -315,7 +315,7 @@ export function LandingPage() {
           <div className="text-center mb-14">
             <p
               className="text-[12px] font-bold uppercase tracking-[1.4px] mb-3"
-              style={{ color: 'var(--secondary)' }}
+              style={{ color: 'var(--accent)' }}
             >
               Funcionalidades
             </p>
@@ -357,7 +357,7 @@ export function LandingPage() {
               <div>
                 <p
                   className="text-[12px] font-bold uppercase tracking-[1.4px] mb-3"
-                  style={{ color: 'var(--secondary)' }}
+                  style={{ color: 'var(--accent)' }}
                 >
                   Rastreabilidade Completa
                 </p>
@@ -443,7 +443,7 @@ export function LandingPage() {
             />
             <p
               className="text-[12px] font-bold uppercase tracking-[1.4px] mb-4"
-              style={{ color: 'var(--secondary)' }}
+              style={{ color: 'var(--accent)' }}
             >
               Pronto para começar?
             </p>
@@ -480,25 +480,27 @@ export function LandingPage() {
             MS
           </div>
           <span className="text-[14px] font-extrabold">
-            Med<em className="not-italic" style={{ color: 'var(--secondary)' }}>Storage</em>
+            Med<em className="not-italic" style={{ color: 'var(--accent)' }}>Storage</em>
           </span>
         </div>
         <p className="text-[12px]" style={{ color: 'var(--text-soft)' }}>
           Distribuidor de Materiais Médicos &mdash; &copy; 2025 &mdash; FIAP
         </p>
         <div className="flex gap-4">
-          {['Slate #394a51', 'Sage #7fa99b', 'Cream #fbf2d5', 'Amber #fdc57b'].map((c, i) => {
-            const colors = ['#394a51', '#7fa99b', '#fbf2d5', '#fdc57b'];
-            return (
-              <div key={c} className="flex items-center gap-1.5">
-                <span
-                  className="w-3 h-3 rounded-full border"
-                  style={{ background: colors[i], borderColor: 'var(--border)' }}
-                />
-                <span className="text-[11px]" style={{ color: 'var(--text-soft)' }}>{c}</span>
-              </div>
-            );
-          })}
+          {[
+            { label: 'Ice #f3f9fb',     hex: '#f3f9fb' },
+            { label: 'Indigo #474f85',  hex: '#474f85' },
+            { label: 'Teal #51e3d4',    hex: '#51e3d4' },
+            { label: 'Warm #f3ecd3',    hex: '#f3ecd3' },
+          ].map(c => (
+            <div key={c.label} className="flex items-center gap-1.5">
+              <span
+                className="w-3 h-3 rounded-full border"
+                style={{ background: c.hex, borderColor: 'var(--border)' }}
+              />
+              <span className="text-[11px]" style={{ color: 'var(--text-soft)' }}>{c.label}</span>
+            </div>
+          ))}
         </div>
       </footer>
 

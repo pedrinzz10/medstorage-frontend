@@ -112,7 +112,7 @@ export function Sidebar() {
         <div className="flex items-center gap-2.5">
           <div
             className="neu-card-sm w-[34px] h-[34px] rounded-[10px] flex items-center justify-center text-[12px] font-extrabold flex-shrink-0"
-            style={{ background: 'var(--secondary)', color: '#fbf2d5' }}
+            style={{ background: 'var(--secondary)', color: 'var(--secondary-text)' }}
           >
             {user?.initials ?? '??'}
           </div>

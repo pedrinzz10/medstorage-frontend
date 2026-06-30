@@ -56,7 +56,7 @@ export function LoginPage() {
             MS
           </div>
           <h1 className="font-display text-[26px] font-bold tracking-[-0.8px] leading-tight">
-            Med<em className="not-italic" style={{ color: 'var(--secondary)' }}>Storage</em>
+            Med<em className="not-italic" style={{ color: 'var(--accent)' }}>Storage</em>
           </h1>
           <p className="text-[13px] mt-1.5" style={{ color: 'var(--text-muted)' }}>
             Sistema de Gestão de Distribuição Médica
@@ -111,7 +111,7 @@ export function LoginPage() {
             <a
               href="#"
               className="text-[12px] font-semibold tracking-[0.2px] no-underline"
-              style={{ color: 'var(--secondary)' }}
+              style={{ color: 'var(--accent)' }}
             >
               Esqueceu a senha?
             </a>

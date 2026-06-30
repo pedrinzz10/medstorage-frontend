@@ -24,7 +24,7 @@ export function Button({ variant = 'primary', className = '', children, ...props
     },
     secondary: {
       cls: `${base} neu-btn px-[18px] py-[9px] rounded-[10px] text-[13px] font-bold tracking-[0.2px]`,
-      style: { background: 'var(--secondary)', color: '#fbf2d5' },
+      style: { background: 'var(--secondary)', color: 'var(--secondary-text)' },
     },
     ghost: {
       cls: `${base} neu-btn px-[16px] py-[9px] rounded-[10px] text-[12px] font-semibold uppercase tracking-[0.8px]`,
