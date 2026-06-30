@@ -1,0 +1,206 @@
+/* ============================================================
+   MedStorage — Design System Neumórfico
+   Tokens de cor, sombras e utilitários do Claude Design
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ---------- Tokens de Tema ---------- */
+:root,
+[data-theme='light'] {
+  --bg: #e6ecf5;
+  --shadow-d: #b5bfce;
+  --shadow-l: #ffffff;
+  --text: #1a2340;
+  --text-muted: #5a6a85;
+  --text-soft: #8898b0;
+  --accent: #1e52cc;
+  --accent-h: #1640a8;
+  --accent-fade: rgba(30, 82, 204, 0.08);
+  --nav-active: rgba(30, 82, 204, 0.11);
+  --border: rgba(30, 82, 204, 0.09);
+
+  /* Order status tags */
+  --tag-pend: #fdf6e3;
+  --tag-pend-t: #92580a;
+  --tag-pend-dot: #d97706;
+  --tag-confirm: #eef2ff;
+  --tag-confirm-t: #3730a3;
+  --tag-confirm-dot: #4f46e5;
+  --tag-sep: #f0f9ff;
+  --tag-sep-t: #0369a1;
+  --tag-sep-dot: #0ea5e9;
+  --tag-pronto: #f0fdf4;
+  --tag-pronto-t: #14532d;
+  --tag-pronto-dot: #16a34a;
+  --tag-fin: #f5f3ff;
+  --tag-fin-t: #4c1d95;
+  --tag-fin-dot: #7c3aed;
+  --tag-canc: #fef2f2;
+  --tag-canc-t: #7f1d1d;
+  --tag-canc-dot: #dc2626;
+
+  /* Inventory badges */
+  --ok: #16a34a;
+  --ok-bg: rgba(22, 163, 74, 0.09);
+  --ok-bar: #22c55e;
+  --warn: #d97706;
+  --warn-bg: rgba(217, 119, 6, 0.09);
+  --warn-bar: #f59e0b;
+  --crit: #dc2626;
+  --crit-bg: rgba(220, 38, 38, 0.09);
+  --crit-bar: #ef4444;
+
+  /* User roles */
+  --role-admin-bg: rgba(109, 40, 217, 0.1);
+  --role-admin-t: #5b21b6;
+  --role-ger-bg: rgba(5, 150, 105, 0.1);
+  --role-ger-t: #065f46;
+  --role-vnd-bg: rgba(30, 82, 204, 0.1);
+  --role-vnd-t: #1e52cc;
+  --on-t: #15803d;
+  --off-t: #b91c1c;
+  --pill-ok-bg: rgba(22, 163, 74, 0.08);
+  --pill-ok-t: #15803d;
+  --pill-warn-bg: rgba(217, 119, 6, 0.08);
+  --pill-warn-t: #b45309;
+}
+
+[data-theme='dark'] {
+  --bg: #181e2e;
+  --shadow-d: #0f1420;
+  --shadow-l: #21293e;
+  --text: #dde6f8;
+  --text-muted: #7080a0;
+  --text-soft: #4a5a78;
+  --accent: #3b6fec;
+  --accent-h: #527bf8;
+  --accent-fade: rgba(59, 111, 236, 0.09);
+  --nav-active: rgba(59, 111, 236, 0.14);
+  --border: rgba(59, 111, 236, 0.13);
+
+  --tag-pend: rgba(217, 119, 6, 0.1);
+  --tag-pend-t: #fbbf24;
+  --tag-pend-dot: #f59e0b;
+  --tag-confirm: rgba(79, 70, 229, 0.14);
+  --tag-confirm-t: #a5b4fc;
+  --tag-confirm-dot: #818cf8;
+  --tag-sep: rgba(14, 165, 233, 0.12);
+  --tag-sep-t: #7dd3fc;
+  --tag-sep-dot: #38bdf8;
+  --tag-pronto: rgba(22, 163, 74, 0.1);
+  --tag-pronto-t: #86efac;
+  --tag-pronto-dot: #4ade80;
+  --tag-fin: rgba(124, 58, 237, 0.12);
+  --tag-fin-t: #c4b5fd;
+  --tag-fin-dot: #a78bfa;
+  --tag-canc: rgba(220, 38, 38, 0.1);
+  --tag-canc-t: #fca5a5;
+  --tag-canc-dot: #f87171;
+
+  --ok: #4ade80;
+  --ok-bg: rgba(74, 222, 128, 0.08);
+  --ok-bar: #22c55e;
+  --warn: #fbbf24;
+  --warn-bg: rgba(251, 191, 36, 0.08);
+  --warn-bar: #f59e0b;
+  --crit: #f87171;
+  --crit-bg: rgba(248, 113, 113, 0.08);
+  --crit-bar: #ef4444;
+
+  --role-admin-bg: rgba(167, 139, 250, 0.1);
+  --role-admin-t: #a78bfa;
+  --role-ger-bg: rgba(52, 211, 153, 0.1);
+  --role-ger-t: #34d399;
+  --role-vnd-bg: rgba(96, 165, 250, 0.1);
+  --role-vnd-t: #60a5fa;
+  --on-t: #4ade80;
+  --off-t: #f87171;
+  --pill-ok-bg: rgba(74, 222, 128, 0.08);
+  --pill-ok-t: #4ade80;
+  --pill-warn-bg: rgba(251, 191, 36, 0.08);
+  --pill-warn-t: #fbbf24;
+}
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Sombras neumórficas ---------- */
+.neu-card {
+  background: var(--bg);
+  box-shadow: 7px 7px 18px var(--shadow-d), -7px -7px 18px var(--shadow-l);
+}
+
+.neu-card-sm {
+  background: var(--bg);
+  box-shadow: 4px 4px 10px var(--shadow-d), -4px -4px 10px var(--shadow-l);
+}
+
+.neu-card-lg {
+  background: var(--bg);
+  box-shadow: 14px 14px 34px var(--shadow-d), -14px -14px 34px var(--shadow-l);
+}
+
+.neu-btn {
+  background: var(--bg);
+  box-shadow: 5px 5px 14px var(--shadow-d), -5px -5px 14px var(--shadow-l);
+  transition: all 0.2s;
+}
+
+.neu-btn:active {
+  box-shadow: inset 2px 2px 6px var(--shadow-d), inset -2px -2px 6px var(--shadow-l);
+}
+
+.neu-btn-sm {
+  background: var(--bg);
+  box-shadow: 3px 3px 7px var(--shadow-d), -3px -3px 7px var(--shadow-l);
+  transition: all 0.15s;
+}
+
+.neu-input {
+  background: var(--bg);
+  box-shadow: inset 5px 5px 12px var(--shadow-d), inset -5px -5px 12px var(--shadow-l);
+  transition: box-shadow 0.2s;
+}
+
+.neu-input:focus {
+  box-shadow: inset 5px 5px 12px var(--shadow-d), inset -5px -5px 12px var(--shadow-l),
+    0 0 0 2.5px var(--accent);
+}
+
+.neu-sidebar {
+  background: var(--bg);
+  box-shadow: 5px 0 18px var(--shadow-d);
+}
+
+.neu-inset {
+  background: var(--bg);
+  box-shadow: inset 2px 2px 5px var(--shadow-d), inset -2px -2px 5px var(--shadow-l);
+}
+
+/* ---------- Utilitários de cor ---------- */
+.text-accent { color: var(--accent); }
+.text-muted  { color: var(--text-muted); }
+.text-soft   { color: var(--text-soft); }
+.text-ok     { color: var(--ok); }
+.text-warn   { color: var(--warn); }
+.text-crit   { color: var(--crit); }
+
+/* ---------- Transição de tema ---------- */
+.theme-transition {
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
