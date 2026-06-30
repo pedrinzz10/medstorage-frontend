@@ -50,8 +50,8 @@ export function Sidebar() {
       {/* Marca */}
       <div className="flex items-center gap-2.5 px-3 pb-6">
         <div
-          className="neu-card-sm w-9 h-9 rounded-[10px] flex items-center justify-center text-white text-[13px] font-extrabold flex-shrink-0"
-          style={{ background: 'var(--accent)' }}
+          className="neu-card-sm w-9 h-9 rounded-[10px] flex items-center justify-center text-[13px] font-extrabold flex-shrink-0"
+          style={{ background: 'var(--text)', color: 'var(--bg)' }}
         >
           MS
         </div>
@@ -105,14 +105,14 @@ export function Sidebar() {
       {/* Perfil do usuário */}
       <div
         className="mt-auto rounded-[14px] p-3 cursor-pointer"
-        style={{ background: 'var(--accent-fade)' }}
+        style={{ background: 'var(--secondary-fade)' }}
         onClick={handleLogout}
         title="Clique para sair"
       >
         <div className="flex items-center gap-2.5">
           <div
-            className="neu-card-sm w-[34px] h-[34px] rounded-[10px] flex items-center justify-center text-white text-[12px] font-extrabold flex-shrink-0"
-            style={{ background: 'var(--accent)' }}
+            className="neu-card-sm w-[34px] h-[34px] rounded-[10px] flex items-center justify-center text-[12px] font-extrabold flex-shrink-0"
+            style={{ background: 'var(--secondary)', color: '#fbf2d5' }}
           >
             {user?.initials ?? '??'}
           </div>

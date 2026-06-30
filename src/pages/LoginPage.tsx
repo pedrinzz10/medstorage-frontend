@@ -50,13 +50,13 @@ export function LoginPage() {
         {/* Marca */}
         <div className="text-center mb-[42px]">
           <div
-            className="neu-card-sm inline-flex items-center justify-center w-[72px] h-[72px] rounded-[20px] text-white text-[22px] font-extrabold tracking-[-1px] mb-5"
-            style={{ background: 'var(--accent)' }}
+            className="neu-card-sm inline-flex items-center justify-center w-[72px] h-[72px] rounded-[20px] text-[22px] font-extrabold tracking-[-1px] mb-5"
+            style={{ background: 'var(--text)', color: 'var(--bg)' }}
           >
             MS
           </div>
-          <h1 className="text-[26px] font-extrabold tracking-[-0.8px] leading-tight">
-            Med<em className="text-[var(--accent)] not-italic">Storage</em>
+          <h1 className="font-display text-[26px] font-bold tracking-[-0.8px] leading-tight">
+            Med<em className="not-italic" style={{ color: 'var(--secondary)' }}>Storage</em>
           </h1>
           <p className="text-[13px] mt-1.5" style={{ color: 'var(--text-muted)' }}>
             Sistema de Gestão de Distribuição Médica
@@ -111,7 +111,7 @@ export function LoginPage() {
             <a
               href="#"
               className="text-[12px] font-semibold tracking-[0.2px] no-underline"
-              style={{ color: 'var(--accent)' }}
+              style={{ color: 'var(--secondary)' }}
             >
               Esqueceu a senha?
             </a>
@@ -128,8 +128,8 @@ export function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="neu-btn w-full py-[15px] mt-3 rounded-[14px] border-none cursor-pointer text-white text-[15px] font-bold tracking-[0.3px] disabled:opacity-60"
-            style={{ background: 'var(--accent)', fontFamily: 'inherit' }}
+            className="neu-btn w-full py-[15px] mt-3 rounded-[14px] border-none cursor-pointer text-[15px] font-bold tracking-[0.3px] disabled:opacity-60"
+            style={{ background: 'var(--accent)', color: 'var(--text-on-accent)', fontFamily: 'inherit' }}
           >
             {loading ? 'Entrando…' : 'Entrar no Sistema'}
           </button>
@@ -151,7 +151,7 @@ export function LoginPage() {
             <span
               key={chip}
               className="px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-[0.4px]"
-              style={{ background: 'var(--accent-fade)', color: 'var(--accent)' }}
+              style={{ background: 'var(--secondary-fade)', color: 'var(--secondary)' }}
             >
               {chip}
             </span>
