@@ -35,17 +35,26 @@ const MOCK_USERS: Record<string, AuthUser> = {
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    try {
+      const saved = sessionStorage.getItem('ms-user');
+      return saved ? (JSON.parse(saved) as AuthUser) : null;
+    } catch {
+      return null;
+    }
+  });
 
   async function login(email: string, _password: string) {
     /* Em produção: POST /api/auth/login */
     await new Promise(r => setTimeout(r, 600));
     const found = MOCK_USERS[email];
     if (!found) throw new Error('Credenciais inválidas');
+    sessionStorage.setItem('ms-user', JSON.stringify(found));
     setUser(found);
   }
 
   function logout() {
+    sessionStorage.removeItem('ms-user');
     setUser(null);
   }
 

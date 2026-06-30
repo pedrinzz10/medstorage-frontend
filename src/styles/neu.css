@@ -103,16 +103,17 @@
 }
 
 /* ─────────────────────────────────────────
-   Reset
+   Base (dentro de @layer para não sobrescrever
+   utilities do Tailwind que ficam em @layer utilities)
 ───────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  transition: background .3s, color .3s;
-  -webkit-font-smoothing: antialiased;
+@layer base {
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: background .3s, color .3s;
+    -webkit-font-smoothing: antialiased;
+  }
 }
 
 /* ─────────────────────────────────────────
