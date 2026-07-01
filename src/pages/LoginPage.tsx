@@ -24,8 +24,15 @@ export function LoginPage() {
     try {
       await login(email, password);
       navigate('/pedidos');
-    } catch {
-      setError('E-mail ou senha inválidos.');
+    } catch (e) {
+      const status = (e as { status?: number }).status;
+      if (status === 0) {
+        setError('Não foi possível conectar ao servidor. Verifique se a API está no ar.');
+      } else if (status === 401 || status === 404) {
+        setError('E-mail ou senha inválidos.');
+      } else {
+        setError((e as Error).message || 'Erro ao entrar. Tente novamente.');
+      }
     } finally {
       setLoading(false);
     }

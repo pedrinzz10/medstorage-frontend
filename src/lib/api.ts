@@ -6,15 +6,27 @@ export interface PageResponse<T> {
   size: number;
 }
 
+export interface ApiError extends Error {
+  status: number;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, {
-    ...init,
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...init?.headers },
-  });
+  let res: Response;
+  try {
+    res = await fetch(path, {
+      ...init,
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...init?.headers },
+    });
+  } catch {
+    // fetch só rejeita em falha de rede / servidor fora do ar (não em status HTTP)
+    const err = new Error('Não foi possível conectar ao servidor') as ApiError;
+    err.status = 0;
+    throw err;
+  }
 
   if (res.status === 401) {
-    const err = new Error('Não autorizado') as Error & { status: number };
+    const err = new Error('Não autorizado') as ApiError;
     err.status = 401;
     throw err;
   }
@@ -25,7 +37,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     try {
       message = (JSON.parse(text) as { message?: string }).message ?? text;
     } catch { /* keep raw text */ }
-    const err = new Error(message) as Error & { status: number };
+    const err = new Error(message) as ApiError;
     err.status = res.status;
     throw err;
   }
