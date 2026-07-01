@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { StatCard } from '../components/ui/StatCard';
 import { StatusTag } from '../components/ui/StatusTag';
 import { Button } from '../components/ui/Button';
+import { CreateOrderModal } from '../components/orders/CreateOrderModal';
+import { OrderDetailModal } from '../components/orders/OrderDetailModal';
 import { useAuth } from '../contexts/AuthContext';
 import { api, type PageResponse } from '../lib/api';
 import type { Order, OrderStatus } from '../types';
@@ -38,17 +41,21 @@ function buildUrl(statusFilter: OrderStatus | 'TODOS', page: number) {
 
 export function PedidosPage() {
   const { user } = useAuth();
+  const location = useLocation();
   const canChangeStatus = user?.role === 'admin' || user?.role === 'gerente_estoque';
+  const canCreateOrder = user?.role === 'admin' || user?.role === 'vendedor';
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [totalElements, setTotalElements] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [activeFilter, setActiveFilter] = useState<OrderStatus | 'TODOS'>('TODOS');
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(() => (location.state as { customerName?: string } | null)?.customerName ?? '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [advancing, setAdvancing] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
 
   const fetchOrders = useCallback(async (statusFilter: OrderStatus | 'TODOS', page: number) => {
     setLoading(true);
@@ -109,13 +116,20 @@ export function PedidosPage() {
 
   return (
     <AppLayout>
+      {showCreate && (
+        <CreateOrderModal onClose={() => setShowCreate(false)} onSaved={() => fetchOrders(activeFilter, currentPage)} />
+      )}
+      {viewingOrder && (
+        <OrderDetailModal order={viewingOrder} onClose={() => setViewingOrder(null)} />
+      )}
+
       {/* Cabeçalho */}
       <div className="flex items-center justify-between mb-7">
         <h1 className="text-[21px] font-extrabold tracking-[-0.5px]">
           Gestão de{' '}
           <em className="text-[var(--accent)] not-italic">Pedidos</em>
         </h1>
-        <Button variant="primary">+ Novo Pedido</Button>
+        {canCreateOrder && <Button variant="primary" onClick={() => setShowCreate(true)}>+ Novo Pedido</Button>}
       </div>
 
       {/* Cards de estatística */}
@@ -243,7 +257,7 @@ export function PedidosPage() {
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex gap-1.5">
-                        <Button variant="row">Ver</Button>
+                        <Button variant="row" onClick={() => setViewingOrder(order)}>Ver</Button>
                         {canChangeStatus && nextStatus && (
                           <button
                             onClick={() => void handleAdvance(order)}
