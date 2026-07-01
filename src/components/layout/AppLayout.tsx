@@ -8,7 +8,20 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  // Enquanto a sessão é revalidada no servidor, não redirecionar —
+  // evita expulsar para /login um usuário logado ao dar refresh.
+  if (loading) {
+    return (
+      <div
+        className="min-h-screen grid place-items-center"
+        style={{ background: 'var(--bg)', color: 'var(--text-muted)' }}
+      >
+        <span className="text-[13px]">Carregando…</span>
+      </div>
+    );
+  }
 
   if (!user) return <Navigate to="/login" replace />;
 

@@ -42,8 +42,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     api.get<ValidateResponse>('/api/auth/validate')
       .then(v => {
-        if (v.valid) setUser(JSON.parse(stored) as AuthUser);
-        else sessionStorage.removeItem('ms-user');
+        if (!v.valid) {
+          sessionStorage.removeItem('ms-user');
+          return;
+        }
+        // A fonte de verdade de identidade/role é a resposta do servidor,
+        // não o sessionStorage (que o cliente pode adulterar). Reconcilia
+        // email/role a partir do token validado.
+        const cached = JSON.parse(stored) as AuthUser;
+        const reconciled: AuthUser = {
+          ...cached,
+          email: v.email,
+          role: v.role as Role,
+        };
+        sessionStorage.setItem('ms-user', JSON.stringify(reconciled));
+        setUser(reconciled);
       })
       .catch(() => sessionStorage.removeItem('ms-user'))
       .finally(() => setLoading(false));
