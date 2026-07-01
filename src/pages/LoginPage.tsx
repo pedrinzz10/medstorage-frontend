@@ -12,8 +12,10 @@ export function LoginPage() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('admin@distribuidor.com');
-  const [password, setPassword] = useState('Admin123!');
+  // Só pré-preenche credenciais em desenvolvimento; em produção os campos
+  // iniciam vazios para não expor um usuário de teste.
+  const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@distribuidor.com' : '');
+  const [password, setPassword] = useState(import.meta.env.DEV ? 'Admin123!' : '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
