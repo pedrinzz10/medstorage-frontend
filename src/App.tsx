@@ -11,6 +11,7 @@ import { ProdutosPage } from './pages/ProdutosPage';
 import { ClientesPage } from './pages/ClientesPage';
 import { ConsignacaoPage } from './pages/ConsignacaoPage';
 import { CalendarioPage } from './pages/CalendarioPage';
+import { HistoricoContagensPage } from './pages/HistoricoContagensPage';
 import { ComissoesPage } from './pages/ComissoesPage';
 import { DevolucoesPage } from './pages/DevolucoesPage';
 import { AdminPage } from './pages/AdminPage';
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="/clientes"   element={<ClientesPage />} />
             <Route path="/consignacao" element={<ConsignacaoPage />} />
             <Route path="/calendario"  element={<CalendarioPage />} />
+            <Route path="/contagens"   element={<HistoricoContagensPage />} />
             <Route path="/comissoes"  element={<ComissoesPage />} />
             <Route path="/devolucoes" element={<DevolucoesPage />} />
             <Route path="/admin"      element={<AdminPage />} />

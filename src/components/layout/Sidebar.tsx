@@ -20,6 +20,7 @@ function buildSections(canSeeAbcCurve: boolean): NavSection[] {
         { label: 'Clientes',  path: '/clientes' },
         { label: 'Consignação', path: '/consignacao' },
         { label: 'Calendário', path: '/calendario' },
+        ...(canSeeAbcCurve ? [{ label: 'Histórico de Contagens', path: '/contagens' }] : []),
       ],
     },
     {
