@@ -112,7 +112,7 @@ export interface Commission {
 }
 
 /** Devolução — espelha ReturnResponse */
-export type ReturnStatus = 'PENDENTE' | 'APROVADO' | 'REJEITADO';
+export type ReturnStatus = 'PENDENTE' | 'PROCESSADO' | 'REJEITADO';
 
 export interface ReturnItem {
   id: string;

@@ -1,17 +1,10 @@
 import { useState } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { StatCard } from '../components/ui/StatCard';
+import { useAuth } from '../contexts/AuthContext';
+import { type PageResponse } from '../lib/api';
+import { useApiResource } from '../lib/useApiResource';
 import type { Commission, CommissionStatus } from '../types';
-
-const MOCK_COMMISSIONS: Commission[] = [
-  { id:'1', vendedorId:'1', vendedorNome:'Ana Oliveira',   periodoInicio:'2025-06-01', periodoFim:'2025-06-30', totalPedidos:42, valorVendido:128400, quantidadeUnidades:3210, taxaComissao:0.04, valorComissao:5136,  status:'PENDENTE' },
-  { id:'2', vendedorId:'2', vendedorNome:'Carlos Mendes',  periodoInicio:'2025-06-01', periodoFim:'2025-06-30', totalPedidos:35, valorVendido: 98700, quantidadeUnidades:2640, taxaComissao:0.04, valorComissao:3948,  status:'PENDENTE' },
-  { id:'3', vendedorId:'3', vendedorNome:'Beatriz Santos', periodoInicio:'2025-06-01', periodoFim:'2025-06-30', totalPedidos:28, valorVendido: 74200, quantidadeUnidades:1890, taxaComissao:0.035,valorComissao:2597,  status:'PENDENTE' },
-  { id:'4', vendedorId:'1', vendedorNome:'Ana Oliveira',   periodoInicio:'2025-05-01', periodoFim:'2025-05-31', totalPedidos:38, valorVendido:114200, quantidadeUnidades:2890, taxaComissao:0.04, valorComissao:4568,  status:'PAGO' },
-  { id:'5', vendedorId:'2', vendedorNome:'Carlos Mendes',  periodoInicio:'2025-05-01', periodoFim:'2025-05-31', totalPedidos:29, valorVendido: 82100, quantidadeUnidades:2200, taxaComissao:0.04, valorComissao:3284,  status:'PAGO' },
-  { id:'6', vendedorId:'4', vendedorNome:'Rafael Costa',   periodoInicio:'2025-05-01', periodoFim:'2025-05-31', totalPedidos:17, valorVendido: 44800, quantidadeUnidades:1180, taxaComissao:0.03, valorComissao:1344,  status:'PAGO' },
-  { id:'7', vendedorId:'5', vendedorNome:'Mariana Lima',   periodoInicio:'2025-04-01', periodoFim:'2025-04-30', totalPedidos:11, valorVendido: 29300, quantidadeUnidades: 760, taxaComissao:0.03, valorComissao: 879,  status:'CANCELADO' },
-];
 
 const STATUS_CFG: Record<CommissionStatus, { bg: string; t: string; label: string }> = {
   PENDENTE:  { bg: 'var(--tag-pend)',    t: 'var(--tag-pend-t)',    label: 'Pendente'  },
@@ -29,15 +22,35 @@ const fmtPct = (n: number) => `${(n * 100).toFixed(1)}%`;
 const fmtDate = (s: string) => new Date(s + 'T00:00').toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
 
 export function ComissoesPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [filterStatus, setFilterStatus] = useState<CommissionStatus | 'TODOS'>('TODOS');
 
-  const filtered = filterStatus === 'TODOS'
-    ? MOCK_COMMISSIONS
-    : MOCK_COMMISSIONS.filter(c => c.status === filterStatus);
+  const { data, loading, error, reload } = useApiResource<PageResponse<Commission>>(
+    isAdmin ? '/api/commissions?page=0&size=100&sort=periodoInicio,desc' : null,
+  );
+  const commissions = data?.content ?? [];
 
-  const totalPendente  = MOCK_COMMISSIONS.filter(c => c.status === 'PENDENTE').reduce((s, c) => s + c.valorComissao, 0);
-  const totalPago      = MOCK_COMMISSIONS.filter(c => c.status === 'PAGO').reduce((s, c) => s + c.valorComissao, 0);
-  const totalGeral     = MOCK_COMMISSIONS.reduce((s, c) => s + c.valorComissao, 0);
+  const filtered = filterStatus === 'TODOS'
+    ? commissions
+    : commissions.filter(c => c.status === filterStatus);
+
+  const totalPendente  = commissions.filter(c => c.status === 'PENDENTE').reduce((s, c) => s + c.valorComissao, 0);
+  const totalPago      = commissions.filter(c => c.status === 'PAGO').reduce((s, c) => s + c.valorComissao, 0);
+  const totalGeral     = commissions.reduce((s, c) => s + c.valorComissao, 0);
+
+  if (!isAdmin) {
+    return (
+      <AppLayout>
+        <h1 className="text-[26px] font-extrabold tracking-[-0.6px] mb-4">
+          Gestão de <em className="not-italic" style={{ color: 'var(--accent)' }}>Comissões</em>
+        </h1>
+        <div className="neu-card rounded-[20px] p-12 text-center text-[14px]" style={{ color: 'var(--text-muted)' }}>
+          Acesso restrito a administradores.
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -47,11 +60,20 @@ export function ComissoesPage() {
         </h1>
       </div>
 
+      {error && (
+        <div className="px-5 py-3 rounded-[14px] mb-5 text-[13px] font-semibold flex items-center gap-3"
+          style={{ background: 'var(--crit-bg)', color: 'var(--crit)' }}>
+          {error} —{' '}
+          <button className="underline cursor-pointer border-none bg-transparent font-semibold"
+            style={{ color: 'var(--crit)', fontFamily: 'inherit' }} onClick={reload}>Tentar novamente</button>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
         <StatCard label="Total Acumulado" value={fmt(totalGeral)}    sub="todos os períodos"  color="accent" />
         <StatCard label="A Pagar"         value={fmt(totalPendente)} sub="pendente de pagamento" color="amber" />
         <StatCard label="Já Pago"         value={fmt(totalPago)}     sub="liquidado"           color="green"  />
-        <StatCard label="Registros"       value={String(MOCK_COMMISSIONS.length)} sub="comissões cadastradas" color="accent" />
+        <StatCard label="Registros"       value={String(data?.totalElements ?? commissions.length)} sub="comissões cadastradas" color="accent" />
       </div>
 
       {/* Filtros */}
@@ -83,7 +105,7 @@ export function ComissoesPage() {
           <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1.5px solid var(--border)' }}>
-                {['Vendedor', 'Período', 'Pedidos', 'Volume Vendido', 'Taxa', 'Comissão', 'Status', ''].map(h => (
+                {['Vendedor', 'Período', 'Pedidos', 'Volume Vendido', 'Taxa', 'Comissão', 'Status'].map(h => (
                   <th key={h} className="text-left py-4 px-5 font-bold text-[11px] uppercase tracking-[0.8px]"
                     style={{ color: 'var(--text-soft)' }}>
                     {h}
@@ -92,14 +114,17 @@ export function ComissoesPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 && (
+              {loading && (
+                <tr><td colSpan={7} className="py-12 text-center" style={{ color: 'var(--text-soft)' }}>Carregando…</td></tr>
+              )}
+              {!loading && filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center" style={{ color: 'var(--text-soft)' }}>
-                    Nenhuma comissão encontrada
+                  <td colSpan={7} className="py-12 text-center" style={{ color: 'var(--text-soft)' }}>
+                    {error ? 'Não foi possível carregar as comissões' : 'Nenhuma comissão encontrada'}
                   </td>
                 </tr>
               )}
-              {filtered.map((c, i) => {
+              {!loading && filtered.map((c, i) => {
                 const cfg = STATUS_CFG[c.status];
                 return (
                   <tr key={c.id}
@@ -126,16 +151,6 @@ export function ComissoesPage() {
                         style={{ background: cfg.bg, color: cfg.t }}>
                         {cfg.label}
                       </span>
-                    </td>
-                    <td className="py-4 px-5">
-                      {c.status === 'PENDENTE' && (
-                        <button
-                          className="neu-btn-sm px-3 py-1.5 rounded-[7px] border-none cursor-pointer text-[11px] font-bold"
-                          style={{ fontFamily: 'inherit', background: 'var(--bg)', color: 'var(--ok)' }}
-                        >
-                          Marcar Pago
-                        </button>
-                      )}
                     </td>
                   </tr>
                 );
