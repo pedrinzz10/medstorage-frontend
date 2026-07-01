@@ -7,25 +7,28 @@ interface NavSection {
   items: { label: string; path: string }[];
 }
 
-const sections: NavSection[] = [
-  {
-    title: 'Operações',
-    items: [
-      { label: 'Dashboard', path: '/dashboard' },
-      { label: 'Pedidos',   path: '/pedidos' },
-      { label: 'Estoque',   path: '/estoque' },
-      { label: 'Produtos',  path: '/produtos' },
-      { label: 'Clientes',  path: '/clientes' },
-    ],
-  },
-  {
-    title: 'Financeiro',
-    items: [
-      { label: 'Comissões',   path: '/comissoes' },
-      { label: 'Devoluções',  path: '/devolucoes' },
-    ],
-  },
-];
+function buildSections(canSeeAbcCurve: boolean): NavSection[] {
+  return [
+    {
+      title: 'Operações',
+      items: [
+        { label: 'Dashboard', path: '/dashboard' },
+        { label: 'Pedidos',   path: '/pedidos' },
+        { label: 'Estoque',   path: '/estoque' },
+        ...(canSeeAbcCurve ? [{ label: 'Curva ABC', path: '/curva-abc' }] : []),
+        { label: 'Produtos',  path: '/produtos' },
+        { label: 'Clientes',  path: '/clientes' },
+      ],
+    },
+    {
+      title: 'Financeiro',
+      items: [
+        { label: 'Comissões',   path: '/comissoes' },
+        { label: 'Devoluções',  path: '/devolucoes' },
+      ],
+    },
+  ];
+}
 
 const adminItem = { label: 'Administração', path: '/admin' };
 
@@ -34,6 +37,7 @@ export function Sidebar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const sections = buildSections(user?.role === 'admin' || user?.role === 'gerente_estoque');
 
   function handleLogout() {
     logout();

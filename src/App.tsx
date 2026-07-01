@@ -6,6 +6,7 @@ import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { PedidosPage } from './pages/PedidosPage';
 import { EstoquePage } from './pages/EstoquePage';
+import { AbcCurvePage } from './pages/AbcCurvePage';
 import { ProdutosPage } from './pages/ProdutosPage';
 import { ClientesPage } from './pages/ClientesPage';
 import { ComissoesPage } from './pages/ComissoesPage';
@@ -23,6 +24,7 @@ export default function App() {
             <Route path="/dashboard"  element={<DashboardPage />} />
             <Route path="/pedidos"    element={<PedidosPage />} />
             <Route path="/estoque"    element={<EstoquePage />} />
+            <Route path="/curva-abc"  element={<AbcCurvePage />} />
             <Route path="/produtos"   element={<ProdutosPage />} />
             <Route path="/clientes"   element={<ClientesPage />} />
             <Route path="/comissoes"  element={<ComissoesPage />} />

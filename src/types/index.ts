@@ -19,6 +19,13 @@ export type OrderStatus =
   | 'FINALIZADO'
   | 'CANCELADO';
 
+/** Lote consumido por um item de pedido — espelha OrderItemBatchResponse */
+export interface OrderItemBatch {
+  lote: string;
+  validade: string;
+  quantidadeConsumida: number;
+}
+
 /** Item de pedido — espelha OrderItemResponse */
 export interface OrderItem {
   id: string;
@@ -27,6 +34,7 @@ export interface OrderItem {
   quantidade: number;
   precoUnitario: number;
   subtotal: number;
+  lotes: OrderItemBatch[];
 }
 
 /** Pedido resumido para listagem — espelha OrderResponse */
@@ -145,6 +153,38 @@ export interface SellerPerformance {
   totalPedidos: number;
   valorVendido: number;
   quantidadeUnidades: number;
+}
+
+/** Classificação ABC de produto — espelha ProductAbcResponse */
+export type AbcClasse = 'A' | 'B' | 'C';
+
+export interface ProductAbc {
+  productId: string;
+  nome: string;
+  sku: string;
+  valorVendido: number;
+  quantidadeVendida: number;
+  percentualAcumulado: number;
+  classe: AbcClasse;
+}
+
+/** Lote de produto — espelha BatchResponse */
+export interface Batch {
+  id: string;
+  productId: string;
+  lote: string;
+  validade: string;
+  quantidade: number;
+  diasParaVencer: number;
+}
+
+/** Pedido que consumiu um lote — espelha BatchOrderTraceResponse */
+export interface BatchOrderTrace {
+  numeroPedido: string;
+  customerNome: string;
+  status: OrderStatus;
+  quantidadeConsumida: number;
+  dataConsumo: string;
 }
 
 /** Movimentação de estoque — espelha InventoryMovementResponse */
