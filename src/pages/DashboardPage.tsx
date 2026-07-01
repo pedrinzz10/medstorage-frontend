@@ -1,23 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { StatCard } from '../components/ui/StatCard';
-import type { SellerPerformance, Order } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import { api, type PageResponse } from '../lib/api';
+import { useApiResource } from '../lib/useApiResource';
+import type { SellerPerformance, Order, OrderStatus } from '../types';
 
-const MOCK_SELLERS: SellerPerformance[] = [
-  { vendedorId: '1', vendedorNome: 'Ana Oliveira',    vendedorEmail: 'ana@dist.com',     totalPedidos: 42, valorVendido: 128400, quantidadeUnidades: 3210 },
-  { vendedorId: '2', vendedorNome: 'Carlos Mendes',   vendedorEmail: 'carlos@dist.com',  totalPedidos: 35, valorVendido: 98700,  quantidadeUnidades: 2640 },
-  { vendedorId: '3', vendedorNome: 'Beatriz Santos',  vendedorEmail: 'bia@dist.com',     totalPedidos: 28, valorVendido: 74200,  quantidadeUnidades: 1890 },
-  { vendedorId: '4', vendedorNome: 'Rafael Costa',    vendedorEmail: 'rafael@dist.com',  totalPedidos: 19, valorVendido: 51300,  quantidadeUnidades: 1340 },
-  { vendedorId: '5', vendedorNome: 'Mariana Lima',    vendedorEmail: 'mariana@dist.com', totalPedidos: 14, valorVendido: 38900,  quantidadeUnidades:  980 },
-];
-
-const MOCK_RECENT: Order[] = [
-  { id:'1', numeroPedido:'PED-2025-006', customerId:'c1', customerNome:'Hospital São Luís',    status:'CRIADO',     valorTotal:1240,  items:[] },
-  { id:'2', numeroPedido:'PED-2025-005', customerId:'c2', customerNome:'Clínica Vida',         status:'CONFIRMADO', valorTotal:3800,  items:[] },
-  { id:'3', numeroPedido:'PED-2025-004', customerId:'c3', customerNome:'UBS Centro',           status:'SEPARADO',   valorTotal:560,   items:[] },
-  { id:'4', numeroPedido:'PED-2025-003', customerId:'c4', customerNome:'Hospital Regional',    status:'PRONTO',     valorTotal:6120,  items:[] },
-  { id:'5', numeroPedido:'PED-2025-002', customerId:'c5', customerNome:'Laboratório Alpha',    status:'FINALIZADO', valorTotal:240,   items:[] },
-];
+const ALL_ORDER_STATUS: OrderStatus[] = ['CRIADO', 'CONFIRMADO', 'SEPARADO', 'PRONTO', 'FINALIZADO', 'CANCELADO'];
 
 const STATUS_COLOR: Record<string, string> = {
   CRIADO:     'var(--tag-pend-t)',
@@ -50,11 +39,37 @@ function MedalIcon({ rank }: { rank: number }) {
 }
 
 export function DashboardPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [period, setPeriod] = useState<'dia' | 'semana' | 'mes'>('mes');
 
-  const totalVendido = MOCK_SELLERS.reduce((s, v) => s + v.valorVendido, 0);
-  const totalPedidos = MOCK_SELLERS.reduce((s, v) => s + v.totalPedidos, 0);
-  const totalUnidades = MOCK_SELLERS.reduce((s, v) => s + v.quantidadeUnidades, 0);
+  const { data: sellersData } = useApiResource<SellerPerformance[]>(
+    isAdmin ? '/api/sellers/performance/all' : null,
+  );
+  const sellers = (sellersData ?? []).slice().sort((a, b) => b.valorVendido - a.valorVendido);
+
+  const { data: recentData } = useApiResource<PageResponse<Order>>('/api/orders?page=0&size=6&sort=createdAt,desc');
+  const recent = recentData?.content ?? [];
+
+  // Contagem por status: um count leve por status (size=1 lê totalElements).
+  const [statusCounts, setStatusCounts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all(
+      ALL_ORDER_STATUS.map(s =>
+        api.get<PageResponse<Order>>(`/api/orders?status=${s}&page=0&size=1`)
+          .then(p => [s, p.totalElements] as const)
+          .catch(() => [s, 0] as const),
+      ),
+    ).then(pairs => {
+      if (!cancelled) setStatusCounts(Object.fromEntries(pairs));
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const totalVendido = sellers.reduce((s, v) => s + v.valorVendido, 0);
+  const totalPedidos = sellers.reduce((s, v) => s + v.totalPedidos, 0);
+  const totalUnidades = sellers.reduce((s, v) => s + v.quantidadeUnidades, 0);
 
   return (
     <AppLayout>
@@ -82,10 +97,10 @@ export function DashboardPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard label="Faturamento"     value={fmt(totalVendido)}          sub="mês corrente"           color="accent" />
-        <StatCard label="Pedidos"         value={String(totalPedidos)}        sub="+12% vs. mês anterior"  color="green"  />
+        <StatCard label="Faturamento"     value={fmt(totalVendido)}          sub="pedidos finalizados"    color="accent" />
+        <StatCard label="Pedidos"         value={String(totalPedidos)}        sub="no mês corrente"        color="green"  />
         <StatCard label="Unidades"        value={totalUnidades.toLocaleString('pt-BR')} sub="itens distribuídos"  color="accent" />
-        <StatCard label="Ticket Médio"    value={fmt(totalVendido / totalPedidos)}     sub="por pedido"            color="amber"  />
+        <StatCard label="Ticket Médio"    value={fmt(totalPedidos > 0 ? totalVendido / totalPedidos : 0)} sub="por pedido" color="amber" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -105,8 +120,18 @@ export function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_SELLERS.map((s, i) => {
-                  const pct = (s.valorVendido / MOCK_SELLERS[0].valorVendido) * 100;
+                {!isAdmin && (
+                  <tr><td colSpan={5} className="py-8 text-center text-[12.5px]" style={{ color: 'var(--text-soft)' }}>
+                    Ranking disponível para administradores.
+                  </td></tr>
+                )}
+                {isAdmin && sellers.length === 0 && (
+                  <tr><td colSpan={5} className="py-8 text-center text-[12.5px]" style={{ color: 'var(--text-soft)' }}>
+                    Sem dados de vendas no período.
+                  </td></tr>
+                )}
+                {sellers.map((s, i) => {
+                  const pct = sellers[0].valorVendido > 0 ? (s.valorVendido / sellers[0].valorVendido) * 100 : 0;
                   return (
                     <tr key={s.vendedorId} style={{ borderBottom: '1px solid var(--border)' }}>
                       <td className="py-3.5 pr-4"><MedalIcon rank={i + 1} /></td>
@@ -144,7 +169,10 @@ export function DashboardPage() {
         <div className="neu-card rounded-[20px] p-6">
           <h2 className="text-[15px] font-bold mb-5 tracking-[-0.3px]">Pedidos Recentes</h2>
           <div className="flex flex-col gap-3">
-            {MOCK_RECENT.map(o => (
+            {recent.length === 0 && (
+              <p className="text-[12.5px] py-4 text-center" style={{ color: 'var(--text-soft)' }}>Nenhum pedido recente.</p>
+            )}
+            {recent.map(o => (
               <div key={o.id} className="neu-card-sm rounded-[13px] p-3.5">
                 <div className="flex items-start justify-between gap-2 mb-1.5">
                   <p className="text-[12px] font-bold" style={{ color: 'var(--accent)' }}>{o.numeroPedido}</p>
@@ -167,19 +195,14 @@ export function DashboardPage() {
       <div className="mt-5 neu-card rounded-[20px] p-6">
         <h2 className="text-[15px] font-bold mb-4 tracking-[-0.3px]">Distribuição por Status</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {[
-            { status: 'CRIADO',     qty: 12, bg: 'var(--tag-pend)',    t: 'var(--tag-pend-t)' },
-            { status: 'CONFIRMADO', qty:  8, bg: 'var(--tag-confirm)', t: 'var(--tag-confirm-t)' },
-            { status: 'SEPARADO',   qty:  5, bg: 'var(--tag-sep)',     t: 'var(--tag-sep-t)' },
-            { status: 'PRONTO',     qty:  3, bg: 'var(--tag-pronto)',  t: 'var(--tag-pronto-t)' },
-            { status: 'FINALIZADO', qty: 87, bg: 'var(--tag-fin)',     t: 'var(--tag-fin-t)' },
-            { status: 'CANCELADO',  qty:  4, bg: 'var(--tag-canc)',    t: 'var(--tag-canc-t)' },
-          ].map(s => (
-            <div key={s.status} className="neu-card-sm rounded-[14px] p-4 text-center">
-              <p className="text-[22px] font-extrabold tracking-[-0.5px]" style={{ color: s.t }}>{s.qty}</p>
+          {ALL_ORDER_STATUS.map(status => (
+            <div key={status} className="neu-card-sm rounded-[14px] p-4 text-center">
+              <p className="text-[22px] font-extrabold tracking-[-0.5px]" style={{ color: STATUS_COLOR[status] }}>
+                {statusCounts[status] ?? '—'}
+              </p>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 inline-block"
-                style={{ background: s.bg, color: s.t }}>
-                {s.status}
+                style={{ background: STATUS_BG[status], color: STATUS_COLOR[status] }}>
+                {status}
               </span>
             </div>
           ))}
