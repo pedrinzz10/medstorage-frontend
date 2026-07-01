@@ -62,6 +62,9 @@
   --off-t: #b91c1c;
   --pill-ok-bg:   rgba(15,158,135,.10); --pill-ok-t:   #0f766e;
   --pill-warn-bg: rgba(243,236,211,.80); --pill-warn-t: #7a5c2e;
+
+  /* Cor semântica de contagem/crescimento */
+  --green: #16a34a;
 }
 
 /* ─────────────────────────────────────────
@@ -111,6 +114,8 @@
   --off-t: #f87171;
   --pill-ok-bg:   rgba(81,227,212,.14);  --pill-ok-t:   #51e3d4;
   --pill-warn-bg: rgba(243,236,211,.12); --pill-warn-t: #f3ecd3;
+
+  --green: #4ade80;
 }
 
 /* ─────────────────────────────────────────

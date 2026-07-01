@@ -7,9 +7,9 @@ interface StatCardProps {
 
 const colorMap: Record<string, string> = {
   accent: 'var(--accent)',
-  green:  '#16a34a',
-  amber:  '#d97706',
-  red:    '#dc2626',
+  green:  'var(--green)',
+  amber:  'var(--warn)',
+  red:    'var(--crit)',
 };
 
 /** Card neumórfico de estatística para dashboards */
