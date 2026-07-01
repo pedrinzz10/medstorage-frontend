@@ -32,14 +32,27 @@ export function OrderDetailModal({ order, onClose }: { order: Order; onClose: ()
 
         <div className="flex flex-col gap-2 mb-5">
           {order.items.map(item => (
-            <div key={item.id} className="neu-inset rounded-[11px] px-4 py-3 flex items-center justify-between">
-              <div>
-                <p className="text-[13.5px] font-semibold">{item.productNome}</p>
-                <p className="text-[11.5px]" style={{ color: 'var(--text-muted)' }}>
-                  {item.quantidade} × {formatBRL(item.precoUnitario)}
-                </p>
+            <div key={item.id} className="neu-inset rounded-[11px] px-4 py-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[13.5px] font-semibold">{item.productNome}</p>
+                  <p className="text-[11.5px]" style={{ color: 'var(--text-muted)' }}>
+                    {item.quantidade} × {formatBRL(item.precoUnitario)}
+                  </p>
+                </div>
+                <p className="text-[14px] font-bold">{formatBRL(item.subtotal)}</p>
               </div>
-              <p className="text-[14px] font-bold">{formatBRL(item.subtotal)}</p>
+              {item.lotes.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {item.lotes.map((l, i) => (
+                    <span key={i}
+                      className="text-[10.5px] font-semibold px-2 py-0.5 rounded-full"
+                      style={{ background: 'var(--nav-active)', color: 'var(--accent)' }}>
+                      Lote {l.lote} — val. {new Date(l.validade + 'T00:00:00').toLocaleDateString('pt-BR')} — {l.quantidadeConsumida}un
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
