@@ -2,23 +2,15 @@ import { useState } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { Button } from '../components/ui/Button';
 import { StatCard } from '../components/ui/StatCard';
+import { useAuth } from '../contexts/AuthContext';
+import { api, type PageResponse } from '../lib/api';
+import { useApiResource } from '../lib/useApiResource';
 import type { Product } from '../types';
-
-const MOCK_PRODUCTS: Product[] = [
-  { id:'1', nome:'Seringa 10 ml',         descricao:'Seringa descartável com agulha',    sku:'SRG-10ML-001', precoBase:2.50,  unidade:'unidade', estoqueMinimo:50,  ativo:true  },
-  { id:'2', nome:'Luva Nitrila P',        descricao:'Caixa com 100 luvas nitrila P',     sku:'LVN-P-100',    precoBase:45.00, unidade:'caixa',   estoqueMinimo:20,  ativo:true  },
-  { id:'3', nome:'Máscara Cirúrgica',     descricao:'Máscara tripla camada caixa 50un',  sku:'MSK-CRG-50',   precoBase:22.00, unidade:'caixa',   estoqueMinimo:30,  ativo:true  },
-  { id:'4', nome:'Gaze Estéril 10 cm',    descricao:'Gaze estéril pacote com 10 unid',   sku:'GZE-10C-100',  precoBase:12.00, unidade:'pacote',  estoqueMinimo:40,  ativo:true  },
-  { id:'5', nome:'Álcool 70% 1 L',        descricao:'Álcool isopropílico 70% — 1 litro', sku:'ALC-70-1L',    precoBase:8.90,  unidade:'frasco',  estoqueMinimo:25,  ativo:true  },
-  { id:'6', nome:'Cateter Venoso 20G',    descricao:'Cateter intravenoso periférico 20G', sku:'CVP-20G-001',  precoBase:3.80,  unidade:'unidade', estoqueMinimo:100, ativo:false },
-  { id:'7', nome:'Estetoscópio Duplo',    descricao:'Estetoscópio adulto/pediátrico',    sku:'EST-DUP-001',  precoBase:189.0, unidade:'unidade', estoqueMinimo:5,   ativo:true  },
-  { id:'8', nome:'Termômetro Digital',    descricao:'Termômetro digital axilar',          sku:'TRM-DGT-001',  precoBase:28.50, unidade:'unidade', estoqueMinimo:10,  ativo:true  },
-];
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(n);
 
-function ProductModal({ product, onClose }: { product: Product | 'new'; onClose: () => void }) {
+function ProductModal({ product, onClose, onSaved }: { product: Product | 'new'; onClose: () => void; onSaved: () => void }) {
   const isNew = product === 'new';
   const p = isNew ? null : product;
 
@@ -28,6 +20,32 @@ function ProductModal({ product, onClose }: { product: Product | 'new'; onClose:
   const [unidade, setUnidade]       = useState(p?.unidade ?? 'unidade');
   const [estoqueMin, setEstoqueMin] = useState(p ? String(p.estoqueMinimo) : '');
   const [descricao, setDescricao]   = useState(p?.descricao ?? '');
+  const [saving, setSaving]         = useState(false);
+  const [erro, setErro]             = useState<string | null>(null);
+
+  async function handleSave() {
+    setSaving(true);
+    setErro(null);
+    const body = {
+      nome,
+      sku,
+      descricao,
+      precoBase: Number(preco),
+      unidade,
+      estoqueMinimo: Number(estoqueMin),
+      ativo: isNew ? true : p!.ativo,
+    };
+    try {
+      if (isNew) await api.post('/api/products', body);
+      else await api.put(`/api/products/${p!.id}`, body);
+      onSaved();
+      onClose();
+    } catch (e) {
+      setErro((e as Error).message || 'Erro ao salvar produto');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -87,9 +105,13 @@ function ProductModal({ product, onClose }: { product: Product | 'new'; onClose:
           </div>
         </div>
 
+        {erro && (
+          <p className="mt-4 text-[12px] font-semibold" style={{ color: 'var(--crit)' }}>{erro}</p>
+        )}
+
         <div className="flex gap-3 mt-6">
-          <Button variant="primary" className="flex-1">
-            {isNew ? 'Cadastrar' : 'Salvar'}
+          <Button variant="primary" className="flex-1" onClick={handleSave} disabled={saving}>
+            {saving ? 'Salvando…' : isNew ? 'Cadastrar' : 'Salvar'}
           </Button>
           <Button variant="ghost" className="flex-1" onClick={onClose}>Cancelar</Button>
         </div>
@@ -99,35 +121,62 @@ function ProductModal({ product, onClose }: { product: Product | 'new'; onClose:
 }
 
 export function ProdutosPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [search, setSearch]         = useState('');
   const [filterAtivo, setFilterAtivo] = useState<'TODOS' | 'ATIVO' | 'INATIVO'>('TODOS');
   const [modal, setModal]           = useState<Product | 'new' | null>(null);
 
-  const filtered = MOCK_PRODUCTS.filter(p => {
-    const matchSearch = p.nome.toLowerCase().includes(search.toLowerCase()) || p.sku.includes(search.toUpperCase());
+  const { data, loading, error, reload } = useApiResource<PageResponse<Product>>('/api/products?page=0&size=100&sort=nome,asc');
+  const products = data?.content ?? [];
+
+  async function toggleAtivo(p: Product) {
+    try {
+      if (p.ativo) await api.delete(`/api/products/${p.id}`);
+      else await api.put(`/api/products/${p.id}`, {
+        nome: p.nome, sku: p.sku, descricao: p.descricao,
+        precoBase: p.precoBase, unidade: p.unidade, estoqueMinimo: p.estoqueMinimo, ativo: true,
+      });
+      reload();
+    } catch (e) {
+      alert((e as Error).message || 'Erro ao alterar status do produto');
+    }
+  }
+
+  const filtered = products.filter(p => {
+    const matchSearch = p.nome.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
     const matchAtivo  = filterAtivo === 'TODOS' || (filterAtivo === 'ATIVO' ? p.ativo : !p.ativo);
     return matchSearch && matchAtivo;
   });
 
-  const ativos   = MOCK_PRODUCTS.filter(p => p.ativo).length;
-  const inativos = MOCK_PRODUCTS.filter(p => !p.ativo).length;
+  const ativos   = products.filter(p => p.ativo).length;
+  const inativos = products.filter(p => !p.ativo).length;
 
   return (
     <AppLayout>
-      {modal !== null && <ProductModal product={modal} onClose={() => setModal(null)} />}
+      {modal !== null && <ProductModal product={modal} onClose={() => setModal(null)} onSaved={reload} />}
 
       <div className="flex items-center justify-between mb-7 flex-wrap gap-3">
         <h1 className="text-[26px] font-extrabold tracking-[-0.6px]">
           Catálogo de <em className="not-italic" style={{ color: 'var(--accent)' }}>Produtos</em>
         </h1>
-        <Button variant="primary" onClick={() => setModal('new')}>+ Novo Produto</Button>
+        {isAdmin && <Button variant="primary" onClick={() => setModal('new')}>+ Novo Produto</Button>}
       </div>
 
+      {error && (
+        <div className="px-5 py-3 rounded-[14px] mb-5 text-[13px] font-semibold flex items-center gap-3"
+          style={{ background: 'var(--crit-bg)', color: 'var(--crit)' }}>
+          {error} —{' '}
+          <button className="underline cursor-pointer border-none bg-transparent font-semibold"
+            style={{ color: 'var(--crit)', fontFamily: 'inherit' }} onClick={reload}>Tentar novamente</button>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
-        <StatCard label="Total"    value={String(MOCK_PRODUCTS.length)} sub="produtos cadastrados" color="accent" />
-        <StatCard label="Ativos"   value={String(ativos)}               sub="disponíveis para venda" color="green"  />
-        <StatCard label="Inativos" value={String(inativos)}             sub="fora de linha"        color="amber"  />
-        <StatCard label="Categorias" value="4"                          sub="tipos de produto"     color="accent" />
+        <StatCard label="Total"    value={String(products.length)} sub="produtos cadastrados" color="accent" />
+        <StatCard label="Ativos"   value={String(ativos)}          sub="disponíveis para venda" color="green"  />
+        <StatCard label="Inativos" value={String(inativos)}        sub="fora de linha"        color="amber"  />
+        <StatCard label="Filtrados" value={String(filtered.length)} sub="na visão atual"      color="accent" />
       </div>
 
       {/* Filtros */}
@@ -157,12 +206,16 @@ export function ProdutosPage() {
 
       {/* Grid de cards */}
       <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
-        {filtered.length === 0 && (
+        {loading &&
+          Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="neu-card rounded-[18px] p-5 h-[220px] animate-pulse" style={{ opacity: 0.6 }} />
+          ))}
+        {!loading && filtered.length === 0 && (
           <p className="col-span-full text-center py-12" style={{ color: 'var(--text-soft)' }}>
-            Nenhum produto encontrado
+            {error ? 'Não foi possível carregar os produtos' : 'Nenhum produto encontrado'}
           </p>
         )}
-        {filtered.map(p => (
+        {!loading && filtered.map(p => (
           <div key={p.id} className="neu-card rounded-[18px] p-5 flex flex-col gap-3">
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
@@ -195,13 +248,16 @@ export function ProdutosPage() {
               </div>
             </div>
 
-            <div className="flex gap-2 mt-auto">
-              <Button variant="row" className="flex-1" onClick={() => setModal(p)}>Editar</Button>
-              <Button variant="danger-row" className="flex-1 neu-btn-sm px-3 py-1.5 rounded-[7px] text-[12px] font-semibold"
-                style={{ background: 'var(--bg)', color: p.ativo ? 'var(--crit)' : 'var(--ok)' }}>
-                {p.ativo ? 'Desativar' : 'Ativar'}
-              </Button>
-            </div>
+            {isAdmin && (
+              <div className="flex gap-2 mt-auto">
+                <Button variant="row" className="flex-1" onClick={() => setModal(p)}>Editar</Button>
+                <Button variant="danger-row" className="flex-1 neu-btn-sm px-3 py-1.5 rounded-[7px] text-[12px] font-semibold"
+                  style={{ background: 'var(--bg)', color: p.ativo ? 'var(--crit)' : 'var(--ok)' }}
+                  onClick={() => toggleAtivo(p)}>
+                  {p.ativo ? 'Desativar' : 'Ativar'}
+                </Button>
+              </div>
+            )}
           </div>
         ))}
       </div>
