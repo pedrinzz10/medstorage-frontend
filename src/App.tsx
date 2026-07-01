@@ -9,6 +9,8 @@ import { EstoquePage } from './pages/EstoquePage';
 import { AbcCurvePage } from './pages/AbcCurvePage';
 import { ProdutosPage } from './pages/ProdutosPage';
 import { ClientesPage } from './pages/ClientesPage';
+import { ConsignacaoPage } from './pages/ConsignacaoPage';
+import { CalendarioPage } from './pages/CalendarioPage';
 import { ComissoesPage } from './pages/ComissoesPage';
 import { DevolucoesPage } from './pages/DevolucoesPage';
 import { AdminPage } from './pages/AdminPage';
@@ -27,6 +29,8 @@ export default function App() {
             <Route path="/curva-abc"  element={<AbcCurvePage />} />
             <Route path="/produtos"   element={<ProdutosPage />} />
             <Route path="/clientes"   element={<ClientesPage />} />
+            <Route path="/consignacao" element={<ConsignacaoPage />} />
+            <Route path="/calendario"  element={<CalendarioPage />} />
             <Route path="/comissoes"  element={<ComissoesPage />} />
             <Route path="/devolucoes" element={<DevolucoesPage />} />
             <Route path="/admin"      element={<AdminPage />} />

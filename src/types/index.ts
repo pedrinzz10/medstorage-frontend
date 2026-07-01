@@ -213,6 +213,49 @@ export interface Consignment {
   items: ConsignmentItem[];
 }
 
+/** Visita agendada para conferência de consignação — espelha VisitResponse */
+export type VisitStatus = 'AGENDADA' | 'REALIZADA' | 'CANCELADA';
+
+export interface ConsignmentVisit {
+  id: string;
+  customerId: string;
+  customerNome: string;
+  funcionarioId: string;
+  funcionarioNome: string;
+  dataAgendada: string;
+  status: VisitStatus;
+  observacoes?: string;
+}
+
+/** Funcionário elegível para visitas — espelha UserSummaryResponse */
+export interface StaffMember {
+  id: string;
+  email: string;
+  nome: string;
+  role: Role;
+}
+
+/** Contagem de material consignado — espelha ConsignmentCountResponse */
+export interface ConsignmentCountItem {
+  id: string;
+  consignmentItemId: string;
+  productNome: string;
+  quantidadeContada: number;
+  loteConferido?: string;
+  validadeConferida?: string;
+  divergencia: number;
+}
+
+export interface ConsignmentCount {
+  id: string;
+  customerId: string;
+  customerNome: string;
+  visitId?: string;
+  funcionarioNome: string;
+  dataContagem: string;
+  items: ConsignmentCountItem[];
+}
+
 /** Movimentação de estoque — espelha InventoryMovementResponse */
 export type MovementType = 'IN' | 'OUT';
 

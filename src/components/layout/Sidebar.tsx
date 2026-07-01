@@ -18,6 +18,8 @@ function buildSections(canSeeAbcCurve: boolean): NavSection[] {
         ...(canSeeAbcCurve ? [{ label: 'Curva ABC', path: '/curva-abc' }] : []),
         { label: 'Produtos',  path: '/produtos' },
         { label: 'Clientes',  path: '/clientes' },
+        { label: 'Consignação', path: '/consignacao' },
+        { label: 'Calendário', path: '/calendario' },
       ],
     },
     {

@@ -197,3 +197,41 @@
 .font-display {
   font-family: 'DM Serif Display', Georgia, serif;
 }
+
+/* ─────────────────────────────────────────
+   FullCalendar — encaixa no tema neumórfico
+───────────────────────────────────────── */
+.medstorage-calendar {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: var(--nav-active);
+  --fc-today-bg-color: var(--accent-fade);
+  --fc-button-bg-color: var(--bg);
+  --fc-button-border-color: var(--border);
+  --fc-button-text-color: var(--text-muted);
+  --fc-button-hover-bg-color: var(--nav-active);
+  --fc-button-hover-border-color: var(--border);
+  --fc-button-active-bg-color: var(--accent);
+  --fc-button-active-border-color: var(--accent);
+  color: var(--text);
+  font-family: inherit;
+}
+.medstorage-calendar .fc-toolbar-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+.medstorage-calendar .fc-col-header-cell-cushion,
+.medstorage-calendar .fc-daygrid-day-number {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.medstorage-calendar .fc-button {
+  text-transform: capitalize;
+  box-shadow: none !important;
+}
+.medstorage-calendar .fc-daygrid-day-frame:hover {
+  background: var(--accent-fade);
+  cursor: pointer;
+}
