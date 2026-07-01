@@ -2,27 +2,23 @@ import { useState } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { Button } from '../components/ui/Button';
 import { StatCard } from '../components/ui/StatCard';
+import { useAuth } from '../contexts/AuthContext';
+import { api, type PageResponse } from '../lib/api';
+import { useApiResource } from '../lib/useApiResource';
 import type { Return, ReturnStatus } from '../types';
 
-const MOCK_RETURNS: Return[] = [
-  { id:'1', numeroRetorno:'DEV-2025-001', orderId:'o4', numeroPedido:'PED-2025-004', processadoPor:undefined, status:'PENDENTE',  motivo:'Produto com embalagem danificada', dataSolicitacao:'2025-06-29T10:30:00', dataProcessamento:undefined, items:[{ id:'ri1', productId:'p1', productNome:'Luva Nitrila P', quantidade:20, precoUnitario:45, subtotal:900, motivo:'Embalagem aberta' }] },
-  { id:'2', numeroRetorno:'DEV-2025-002', orderId:'o2', numeroPedido:'PED-2025-002', processadoPor:'u1',       status:'APROVADO',  motivo:'Quantidade incorreta recebida',     dataSolicitacao:'2025-06-28T14:00:00', dataProcessamento:'2025-06-28T16:30:00', items:[{ id:'ri2', productId:'p2', productNome:'Seringa 10ml', quantidade:50, precoUnitario:2.5, subtotal:125 }] },
-  { id:'3', numeroRetorno:'DEV-2025-003', orderId:'o1', numeroPedido:'PED-2025-001', processadoPor:'u1',       status:'REJEITADO', motivo:'Produto fora do prazo de devolução', dataSolicitacao:'2025-06-27T09:15:00', dataProcessamento:'2025-06-27T11:00:00', items:[{ id:'ri3', productId:'p3', productNome:'Máscara Cirúrgica', quantidade:100, precoUnitario:22, subtotal:2200 }] },
-  { id:'4', numeroRetorno:'DEV-2025-004', orderId:'o5', numeroPedido:'PED-2025-005', processadoPor:undefined, status:'PENDENTE',  motivo:'Produto errado enviado',             dataSolicitacao:'2025-06-30T08:00:00', dataProcessamento:undefined, items:[{ id:'ri4', productId:'p4', productNome:'Álcool 70% 1L', quantidade:10, precoUnitario:8.9, subtotal:89 }] },
-];
-
 const STATUS_CFG: Record<ReturnStatus, { bg: string; t: string; label: string; dot: string }> = {
-  PENDENTE:  { bg: 'var(--tag-pend)',    t: 'var(--tag-pend-t)',    label: 'Pendente',  dot: 'var(--tag-pend-dot)'    },
-  APROVADO:  { bg: 'var(--tag-pronto)',  t: 'var(--tag-pronto-t)',  label: 'Aprovado',  dot: 'var(--tag-pronto-dot)'  },
-  REJEITADO: { bg: 'var(--tag-canc)',    t: 'var(--tag-canc-t)',    label: 'Rejeitado', dot: 'var(--tag-canc-dot)'    },
+  PENDENTE:   { bg: 'var(--tag-pend)',    t: 'var(--tag-pend-t)',    label: 'Pendente',   dot: 'var(--tag-pend-dot)'    },
+  PROCESSADO: { bg: 'var(--tag-pronto)',  t: 'var(--tag-pronto-t)',  label: 'Processado', dot: 'var(--tag-pronto-dot)'  },
+  REJEITADO:  { bg: 'var(--tag-canc)',    t: 'var(--tag-canc-t)',    label: 'Rejeitado',  dot: 'var(--tag-canc-dot)'    },
 };
 
-const ALL_STATUS: ReturnStatus[] = ['PENDENTE', 'APROVADO', 'REJEITADO'];
+const ALL_STATUS: ReturnStatus[] = ['PENDENTE', 'PROCESSADO', 'REJEITADO'];
 
 const fmtDate = (s: string) =>
   new Date(s).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
 
-function ReturnModal({ ret, onClose }: { ret: Return; onClose: () => void }) {
+function ReturnModal({ ret, onClose, onAction, canProcess }: { ret: Return; onClose: () => void; onAction: (id: string, action: 'process' | 'reject') => void; canProcess: boolean }) {
   const cfg = STATUS_CFG[ret.status];
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -69,16 +65,16 @@ function ReturnModal({ ret, onClose }: { ret: Return; onClose: () => void }) {
           </div>
         </div>
 
-        {ret.status === 'PENDENTE' && (
+        {ret.status === 'PENDENTE' && canProcess && (
           <div className="flex gap-3">
-            <Button variant="primary" className="flex-1">Aprovar</Button>
+            <Button variant="primary" className="flex-1" onClick={() => onAction(ret.id, 'process')}>Processar</Button>
             <Button variant="danger-row" className="flex-1 neu-btn px-4 py-2 rounded-[10px]"
-              style={{ background: 'var(--bg)' }}>
+              style={{ background: 'var(--bg)' }} onClick={() => onAction(ret.id, 'reject')}>
               Rejeitar
             </Button>
           </div>
         )}
-        {ret.status !== 'PENDENTE' && (
+        {(ret.status !== 'PENDENTE' || !canProcess) && (
           <Button variant="ghost" className="w-full" onClick={onClose}>Fechar</Button>
         )}
       </div>
@@ -87,20 +83,35 @@ function ReturnModal({ ret, onClose }: { ret: Return; onClose: () => void }) {
 }
 
 export function DevolucoesPage() {
+  const { user } = useAuth();
+  const canProcess = user?.role === 'admin' || user?.role === 'gerente_estoque';
   const [filterStatus, setFilterStatus] = useState<ReturnStatus | 'TODOS'>('TODOS');
   const [selected, setSelected] = useState<Return | null>(null);
 
-  const filtered = filterStatus === 'TODOS'
-    ? MOCK_RETURNS
-    : MOCK_RETURNS.filter(r => r.status === filterStatus);
+  const { data, loading, error, reload } = useApiResource<PageResponse<Return>>('/api/returns?page=0&size=100&sort=dataSolicitacao,desc');
+  const returns = data?.content ?? [];
 
-  const pendentes  = MOCK_RETURNS.filter(r => r.status === 'PENDENTE').length;
-  const aprovados  = MOCK_RETURNS.filter(r => r.status === 'APROVADO').length;
-  const rejeitados = MOCK_RETURNS.filter(r => r.status === 'REJEITADO').length;
+  async function handleAction(id: string, action: 'process' | 'reject') {
+    try {
+      await api.patch(`/api/returns/${id}/${action}`);
+      setSelected(null);
+      reload();
+    } catch (e) {
+      alert((e as Error).message || 'Erro ao processar devolução');
+    }
+  }
+
+  const filtered = filterStatus === 'TODOS'
+    ? returns
+    : returns.filter(r => r.status === filterStatus);
+
+  const pendentes   = returns.filter(r => r.status === 'PENDENTE').length;
+  const processados = returns.filter(r => r.status === 'PROCESSADO').length;
+  const rejeitados  = returns.filter(r => r.status === 'REJEITADO').length;
 
   return (
     <AppLayout>
-      {selected && <ReturnModal ret={selected} onClose={() => setSelected(null)} />}
+      {selected && <ReturnModal ret={selected} onClose={() => setSelected(null)} onAction={handleAction} canProcess={canProcess} />}
 
       <div className="flex items-center justify-between mb-7 flex-wrap gap-3">
         <h1 className="text-[26px] font-extrabold tracking-[-0.6px]">
@@ -108,10 +119,19 @@ export function DevolucoesPage() {
         </h1>
       </div>
 
+      {error && (
+        <div className="px-5 py-3 rounded-[14px] mb-5 text-[13px] font-semibold flex items-center gap-3"
+          style={{ background: 'var(--crit-bg)', color: 'var(--crit)' }}>
+          {error} —{' '}
+          <button className="underline cursor-pointer border-none bg-transparent font-semibold"
+            style={{ color: 'var(--crit)', fontFamily: 'inherit' }} onClick={reload}>Tentar novamente</button>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
-        <StatCard label="Total"       value={String(MOCK_RETURNS.length)} sub="devoluções registradas" color="accent" />
+        <StatCard label="Total"       value={String(data?.totalElements ?? returns.length)} sub="devoluções registradas" color="accent" />
         <StatCard label="Pendentes"   value={String(pendentes)}            sub="aguardando análise"     color="amber"  />
-        <StatCard label="Aprovados"   value={String(aprovados)}            sub="estoque estornado"      color="green"  />
+        <StatCard label="Processados" value={String(processados)}          sub="estoque estornado"      color="green"  />
         <StatCard label="Rejeitados"  value={String(rejeitados)}           sub="não autorizados"        color="red"    />
       </div>
 
@@ -137,12 +157,16 @@ export function DevolucoesPage() {
 
       {/* Cards de devolução */}
       <div className="flex flex-col gap-3">
-        {filtered.length === 0 && (
+        {loading &&
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="neu-card rounded-[18px] p-5 h-[92px] animate-pulse" style={{ opacity: 0.6 }} />
+          ))}
+        {!loading && filtered.length === 0 && (
           <div className="neu-card rounded-[20px] py-12 text-center" style={{ color: 'var(--text-soft)' }}>
-            Nenhuma devolução encontrada
+            {error ? 'Não foi possível carregar as devoluções' : 'Nenhuma devolução encontrada'}
           </div>
         )}
-        {filtered.map(r => {
+        {!loading && filtered.map(r => {
           const cfg = STATUS_CFG[r.status];
           return (
             <div key={r.id} className="neu-card rounded-[18px] p-5 flex items-center gap-4 flex-wrap">
@@ -163,13 +187,15 @@ export function DevolucoesPage() {
               </div>
               <div className="flex gap-2 flex-shrink-0">
                 <Button variant="row" onClick={() => setSelected(r)}>Detalhes</Button>
-                {r.status === 'PENDENTE' && (
+                {r.status === 'PENDENTE' && canProcess && (
                   <>
-                    <button className="neu-btn-sm px-3 py-1.5 rounded-[7px] border-none cursor-pointer text-[11px] font-bold"
+                    <button onClick={() => handleAction(r.id, 'process')}
+                      className="neu-btn-sm px-3 py-1.5 rounded-[7px] border-none cursor-pointer text-[11px] font-bold"
                       style={{ fontFamily: 'inherit', background: 'var(--bg)', color: 'var(--ok)' }}>
-                      Aprovar
+                      Processar
                     </button>
-                    <button className="neu-btn-sm px-3 py-1.5 rounded-[7px] border-none cursor-pointer text-[11px] font-bold"
+                    <button onClick={() => handleAction(r.id, 'reject')}
+                      className="neu-btn-sm px-3 py-1.5 rounded-[7px] border-none cursor-pointer text-[11px] font-bold"
                       style={{ fontFamily: 'inherit', background: 'var(--bg)', color: 'var(--crit)' }}>
                       Rejeitar
                     </button>
