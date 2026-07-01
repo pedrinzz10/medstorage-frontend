@@ -3,15 +3,15 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
+import { DashboardPage } from './pages/DashboardPage';
 import { PedidosPage } from './pages/PedidosPage';
 import { EstoquePage } from './pages/EstoquePage';
+import { ProdutosPage } from './pages/ProdutosPage';
+import { ClientesPage } from './pages/ClientesPage';
+import { ComissoesPage } from './pages/ComissoesPage';
+import { DevolucoesPage } from './pages/DevolucoesPage';
 import { AdminPage } from './pages/AdminPage';
-import { PlaceholderPage } from './pages/PlaceholderPage';
 
-/**
- * Raiz da aplicação MedStorage.
- * Configura providers globais (tema + autenticação) e roteamento.
- */
 export default function App() {
   return (
     <BrowserRouter>
@@ -20,13 +20,14 @@ export default function App() {
           <Routes>
             <Route path="/"           element={<LandingPage />} />
             <Route path="/login"      element={<LoginPage />} />
+            <Route path="/dashboard"  element={<DashboardPage />} />
             <Route path="/pedidos"    element={<PedidosPage />} />
             <Route path="/estoque"    element={<EstoquePage />} />
+            <Route path="/produtos"   element={<ProdutosPage />} />
+            <Route path="/clientes"   element={<ClientesPage />} />
+            <Route path="/comissoes"  element={<ComissoesPage />} />
+            <Route path="/devolucoes" element={<DevolucoesPage />} />
             <Route path="/admin"      element={<AdminPage />} />
-            <Route path="/dashboard"  element={<PlaceholderPage title="Dashboard" />} />
-            <Route path="/clientes"   element={<PlaceholderPage title="Clientes" />} />
-            <Route path="/comissoes"  element={<PlaceholderPage title="Comissões" />} />
-            <Route path="/devolucoes" element={<PlaceholderPage title="Devoluções" />} />
             <Route path="*"           element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>

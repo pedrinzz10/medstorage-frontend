@@ -13,6 +13,7 @@ const sections: NavSection[] = [
       { label: 'Dashboard', path: '/dashboard' },
       { label: 'Pedidos',   path: '/pedidos' },
       { label: 'Estoque',   path: '/estoque' },
+      { label: 'Produtos',  path: '/produtos' },
       { label: 'Clientes',  path: '/clientes' },
     ],
   },
