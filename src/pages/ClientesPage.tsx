@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { Button } from '../components/ui/Button';
 import { StatCard } from '../components/ui/StatCard';
+import { CustomerFormModal } from '../components/customers/CustomerFormModal';
 import { api, type PageResponse } from '../lib/api';
 import { useApiResource } from '../lib/useApiResource';
 import type { Customer } from '../types';
@@ -9,7 +11,7 @@ import type { Customer } from '../types';
 const fmt = (n: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(n);
 
-function CustomerModal({ customer, onClose }: { customer: Customer; onClose: () => void }) {
+function CustomerModal({ customer, onClose, onViewOrders }: { customer: Customer; onClose: () => void; onViewOrders: (c: Customer) => void }) {
   // A lista traz só dados básicos; os agregados (pedidos, volume, última
   // compra) vêm do detalhe. Busca o detalhe ao abrir o modal.
   const [detail, setDetail] = useState<Customer>(customer);
@@ -76,7 +78,7 @@ function CustomerModal({ customer, onClose }: { customer: Customer; onClose: () 
         </div>
 
         <div className="flex gap-3 mt-6">
-          <Button variant="primary" className="flex-1">Ver Pedidos</Button>
+          <Button variant="primary" className="flex-1" onClick={() => onViewOrders(customer)}>Ver Pedidos</Button>
           <Button variant="ghost" className="flex-1" onClick={onClose}>Fechar</Button>
         </div>
       </div>
@@ -85,8 +87,10 @@ function CustomerModal({ customer, onClose }: { customer: Customer; onClose: () 
 }
 
 export function ClientesPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Customer | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
 
   const { data, loading, error, reload } = useApiResource<PageResponse<Customer>>('/api/customers?page=0&size=100&sort=nome,asc');
   const customers = data?.content ?? [];
@@ -102,13 +106,22 @@ export function ClientesPage() {
 
   return (
     <AppLayout>
-      {selected && <CustomerModal customer={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <CustomerModal
+          customer={selected}
+          onClose={() => setSelected(null)}
+          onViewOrders={c => navigate('/pedidos', { state: { customerName: c.nome } })}
+        />
+      )}
+      {showCreate && (
+        <CustomerFormModal onClose={() => setShowCreate(false)} onSaved={reload} />
+      )}
 
       <div className="flex items-center justify-between mb-7 flex-wrap gap-3">
         <h1 className="text-[26px] font-extrabold tracking-[-0.6px]">
           Gestão de <em className="not-italic" style={{ color: 'var(--accent)' }}>Clientes</em>
         </h1>
-        <Button variant="primary">+ Novo Cliente</Button>
+        <Button variant="primary" onClick={() => setShowCreate(true)}>+ Novo Cliente</Button>
       </div>
 
       {error && (
