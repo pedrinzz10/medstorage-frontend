@@ -43,7 +43,7 @@ export function ComissoesPage() {
     <AppLayout>
       <div className="flex items-center justify-between mb-7 flex-wrap gap-3">
         <h1 className="text-[26px] font-extrabold tracking-[-0.6px]">
-          <em className="not-italic" style={{ color: 'var(--accent)' }}>Comissões</em> de Vendas
+          Gestão de <em className="not-italic" style={{ color: 'var(--accent)' }}>Comissões</em>
         </h1>
       </div>
 

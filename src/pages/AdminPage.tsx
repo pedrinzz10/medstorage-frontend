@@ -54,10 +54,10 @@ function Pill({ ok, children }: { ok: boolean; children: React.ReactNode }) {
   );
 }
 
-const avatarColors: Record<Role, string> = {
-  admin:           '#5b21b6',
-  gerente_estoque: '#065f46',
-  vendedor:        'var(--accent)',
+const avatarColors: Record<Role, { bg: string; color: string }> = {
+  admin:           { bg: 'var(--secondary)', color: 'var(--secondary-text)' },
+  gerente_estoque: { bg: 'var(--accent)',    color: 'var(--text-on-accent)' },
+  vendedor:        { bg: 'var(--warm)',      color: 'var(--warm-text)'      },
 };
 
 /**
@@ -69,9 +69,8 @@ export function AdminPage() {
     <AppLayout>
       {/* Cabeçalho */}
       <div className="flex items-center justify-between mb-7">
-        <h1 className="text-[21px] font-extrabold tracking-[-0.5px]">
-          Painel{' '}
-          <em className="text-[var(--accent)] not-italic">Administrativo</em>
+        <h1 className="text-[26px] font-extrabold tracking-[-0.6px]">
+          Painel <em className="not-italic" style={{ color: 'var(--accent)' }}>Administrativo</em>
         </h1>
         <Button variant="primary">+ Novo Usuário</Button>
       </div>
@@ -121,9 +120,10 @@ export function AdminPage() {
                 <td className="px-5 py-3.5">
                   <div className="flex items-center gap-3">
                     <div
-                      className="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center text-white text-[12px] font-extrabold flex-shrink-0"
+                      className="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center text-[12px] font-extrabold flex-shrink-0"
                       style={{
-                        background: avatarColors[user.role],
+                        background: avatarColors[user.role].bg,
+                        color: avatarColors[user.role].color,
                         boxShadow: '2px 2px 6px var(--shadow-d), -2px -2px 6px var(--shadow-l)',
                       }}
                     >
