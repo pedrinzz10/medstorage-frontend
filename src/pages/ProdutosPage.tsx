@@ -5,14 +5,14 @@ import { StatCard } from '../components/ui/StatCard';
 import type { Product } from '../types';
 
 const MOCK_PRODUCTS: Product[] = [
-  { id:'1', nome:'Seringa 10 ml',         descricao:'Seringa descartável com agulha',    sku:'SRG-10ML-001', precoUnitario:2.50,  unidade:'unidade', estoqueMinimo:50,  ativo:true  },
-  { id:'2', nome:'Luva Nitrila P',        descricao:'Caixa com 100 luvas nitrila P',     sku:'LVN-P-100',    precoUnitario:45.00, unidade:'caixa',   estoqueMinimo:20,  ativo:true  },
-  { id:'3', nome:'Máscara Cirúrgica',     descricao:'Máscara tripla camada caixa 50un',  sku:'MSK-CRG-50',   precoUnitario:22.00, unidade:'caixa',   estoqueMinimo:30,  ativo:true  },
-  { id:'4', nome:'Gaze Estéril 10 cm',    descricao:'Gaze estéril pacote com 10 unid',   sku:'GZE-10C-100',  precoUnitario:12.00, unidade:'pacote',  estoqueMinimo:40,  ativo:true  },
-  { id:'5', nome:'Álcool 70% 1 L',        descricao:'Álcool isopropílico 70% — 1 litro', sku:'ALC-70-1L',    precoUnitario:8.90,  unidade:'frasco',  estoqueMinimo:25,  ativo:true  },
-  { id:'6', nome:'Cateter Venoso 20G',    descricao:'Cateter intravenoso periférico 20G', sku:'CVP-20G-001',  precoUnitario:3.80,  unidade:'unidade', estoqueMinimo:100, ativo:false },
-  { id:'7', nome:'Estetoscópio Duplo',    descricao:'Estetoscópio adulto/pediátrico',    sku:'EST-DUP-001',  precoUnitario:189.0, unidade:'unidade', estoqueMinimo:5,   ativo:true  },
-  { id:'8', nome:'Termômetro Digital',    descricao:'Termômetro digital axilar',          sku:'TRM-DGT-001',  precoUnitario:28.50, unidade:'unidade', estoqueMinimo:10,  ativo:true  },
+  { id:'1', nome:'Seringa 10 ml',         descricao:'Seringa descartável com agulha',    sku:'SRG-10ML-001', precoBase:2.50,  unidade:'unidade', estoqueMinimo:50,  ativo:true  },
+  { id:'2', nome:'Luva Nitrila P',        descricao:'Caixa com 100 luvas nitrila P',     sku:'LVN-P-100',    precoBase:45.00, unidade:'caixa',   estoqueMinimo:20,  ativo:true  },
+  { id:'3', nome:'Máscara Cirúrgica',     descricao:'Máscara tripla camada caixa 50un',  sku:'MSK-CRG-50',   precoBase:22.00, unidade:'caixa',   estoqueMinimo:30,  ativo:true  },
+  { id:'4', nome:'Gaze Estéril 10 cm',    descricao:'Gaze estéril pacote com 10 unid',   sku:'GZE-10C-100',  precoBase:12.00, unidade:'pacote',  estoqueMinimo:40,  ativo:true  },
+  { id:'5', nome:'Álcool 70% 1 L',        descricao:'Álcool isopropílico 70% — 1 litro', sku:'ALC-70-1L',    precoBase:8.90,  unidade:'frasco',  estoqueMinimo:25,  ativo:true  },
+  { id:'6', nome:'Cateter Venoso 20G',    descricao:'Cateter intravenoso periférico 20G', sku:'CVP-20G-001',  precoBase:3.80,  unidade:'unidade', estoqueMinimo:100, ativo:false },
+  { id:'7', nome:'Estetoscópio Duplo',    descricao:'Estetoscópio adulto/pediátrico',    sku:'EST-DUP-001',  precoBase:189.0, unidade:'unidade', estoqueMinimo:5,   ativo:true  },
+  { id:'8', nome:'Termômetro Digital',    descricao:'Termômetro digital axilar',          sku:'TRM-DGT-001',  precoBase:28.50, unidade:'unidade', estoqueMinimo:10,  ativo:true  },
 ];
 
 const fmt = (n: number) =>
@@ -24,7 +24,7 @@ function ProductModal({ product, onClose }: { product: Product | 'new'; onClose:
 
   const [nome, setNome]             = useState(p?.nome ?? '');
   const [sku, setSku]               = useState(p?.sku ?? '');
-  const [preco, setPreco]           = useState(p ? String(p.precoUnitario) : '');
+  const [preco, setPreco]           = useState(p ? String(p.precoBase) : '');
   const [unidade, setUnidade]       = useState(p?.unidade ?? 'unidade');
   const [estoqueMin, setEstoqueMin] = useState(p ? String(p.estoqueMinimo) : '');
   const [descricao, setDescricao]   = useState(p?.descricao ?? '');
@@ -185,7 +185,7 @@ export function ProdutosPage() {
             <div className="neu-inset rounded-[11px] px-4 py-3 flex justify-between items-center">
               <div>
                 <p className="text-[20px] font-extrabold tracking-[-0.5px]" style={{ color: 'var(--accent)' }}>
-                  {fmt(p.precoUnitario)}
+                  {fmt(p.precoBase)}
                 </p>
                 <p className="text-[11px]" style={{ color: 'var(--text-soft)' }}>por {p.unidade}</p>
               </div>

@@ -5,10 +5,10 @@ import { StatCard } from '../components/ui/StatCard';
 import type { Return, ReturnStatus } from '../types';
 
 const MOCK_RETURNS: Return[] = [
-  { id:'1', numeroRetorno:'DEV-2025-001', orderId:'o4', numeroPedido:'PED-2025-004', processadoPor:undefined, status:'PENDENTE',  motivo:'Produto com embalagem danificada', dataSolicitacao:'2025-06-29T10:30:00', dataProcessamento:undefined, items:[{ productId:'p1', productName:'Luva Nitrila P', quantidade:20, motivo:'Embalagem aberta' }] },
-  { id:'2', numeroRetorno:'DEV-2025-002', orderId:'o2', numeroPedido:'PED-2025-002', processadoPor:'u1',       status:'APROVADO',  motivo:'Quantidade incorreta recebida',     dataSolicitacao:'2025-06-28T14:00:00', dataProcessamento:'2025-06-28T16:30:00', items:[{ productId:'p2', productName:'Seringa 10ml', quantidade:50 }] },
-  { id:'3', numeroRetorno:'DEV-2025-003', orderId:'o1', numeroPedido:'PED-2025-001', processadoPor:'u1',       status:'REJEITADO', motivo:'Produto fora do prazo de devolução', dataSolicitacao:'2025-06-27T09:15:00', dataProcessamento:'2025-06-27T11:00:00', items:[{ productId:'p3', productName:'Máscara Cirúrgica', quantidade:100 }] },
-  { id:'4', numeroRetorno:'DEV-2025-004', orderId:'o5', numeroPedido:'PED-2025-005', processadoPor:undefined, status:'PENDENTE',  motivo:'Produto errado enviado',             dataSolicitacao:'2025-06-30T08:00:00', dataProcessamento:undefined, items:[{ productId:'p4', productName:'Álcool 70% 1L', quantidade:10 }] },
+  { id:'1', numeroRetorno:'DEV-2025-001', orderId:'o4', numeroPedido:'PED-2025-004', processadoPor:undefined, status:'PENDENTE',  motivo:'Produto com embalagem danificada', dataSolicitacao:'2025-06-29T10:30:00', dataProcessamento:undefined, items:[{ id:'ri1', productId:'p1', productNome:'Luva Nitrila P', quantidade:20, precoUnitario:45, subtotal:900, motivo:'Embalagem aberta' }] },
+  { id:'2', numeroRetorno:'DEV-2025-002', orderId:'o2', numeroPedido:'PED-2025-002', processadoPor:'u1',       status:'APROVADO',  motivo:'Quantidade incorreta recebida',     dataSolicitacao:'2025-06-28T14:00:00', dataProcessamento:'2025-06-28T16:30:00', items:[{ id:'ri2', productId:'p2', productNome:'Seringa 10ml', quantidade:50, precoUnitario:2.5, subtotal:125 }] },
+  { id:'3', numeroRetorno:'DEV-2025-003', orderId:'o1', numeroPedido:'PED-2025-001', processadoPor:'u1',       status:'REJEITADO', motivo:'Produto fora do prazo de devolução', dataSolicitacao:'2025-06-27T09:15:00', dataProcessamento:'2025-06-27T11:00:00', items:[{ id:'ri3', productId:'p3', productNome:'Máscara Cirúrgica', quantidade:100, precoUnitario:22, subtotal:2200 }] },
+  { id:'4', numeroRetorno:'DEV-2025-004', orderId:'o5', numeroPedido:'PED-2025-005', processadoPor:undefined, status:'PENDENTE',  motivo:'Produto errado enviado',             dataSolicitacao:'2025-06-30T08:00:00', dataProcessamento:undefined, items:[{ id:'ri4', productId:'p4', productNome:'Álcool 70% 1L', quantidade:10, precoUnitario:8.9, subtotal:89 }] },
 ];
 
 const STATUS_CFG: Record<ReturnStatus, { bg: string; t: string; label: string; dot: string }> = {
@@ -51,7 +51,7 @@ function ReturnModal({ ret, onClose }: { ret: Return; onClose: () => void }) {
           <div className="flex flex-col gap-2">
             {ret.items.map(item => (
               <div key={item.productId} className="neu-card-sm rounded-[12px] px-4 py-3 flex justify-between items-center">
-                <span className="text-[13px] font-medium">{item.productName}</span>
+                <span className="text-[13px] font-medium">{item.productNome}</span>
                 <span className="text-[12px] font-bold" style={{ color: 'var(--accent)' }}>{item.quantidade} un</span>
               </div>
             ))}
