@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { StatCard } from '../components/ui/StatCard';
 import { Button } from '../components/ui/Button';
+import { UserFormModal } from '../components/admin/UserFormModal';
 import { useAuth } from '../contexts/AuthContext';
 import { api, type PageResponse } from '../lib/api';
 import { useApiResource } from '../lib/useApiResource';
@@ -64,6 +66,7 @@ export function AdminPage() {
     isAdmin ? '/api/users?page=0&size=100&sort=nome,asc' : null,
   );
   const users = data?.content ?? [];
+  const [showCreate, setShowCreate] = useState(false);
 
   async function toggleAtivo(u: SystemUser) {
     try {
@@ -95,12 +98,16 @@ export function AdminPage() {
 
   return (
     <AppLayout>
+      {showCreate && (
+        <UserFormModal onClose={() => setShowCreate(false)} onSaved={reload} />
+      )}
+
       {/* Cabeçalho */}
       <div className="flex items-center justify-between mb-7">
         <h1 className="text-[26px] font-extrabold tracking-[-0.6px]">
           Painel <em className="not-italic" style={{ color: 'var(--accent)' }}>Administrativo</em>
         </h1>
-        <Button variant="primary">+ Novo Usuário</Button>
+        <Button variant="primary" onClick={() => setShowCreate(true)}>+ Novo Usuário</Button>
       </div>
 
       {error && (
