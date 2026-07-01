@@ -1,7 +1,7 @@
 /** Perfis de acesso do sistema */
 export type Role = 'admin' | 'gerente_estoque' | 'vendedor';
 
-/** Usuário autenticado */
+/** Usuário autenticado (initials é calculado client-side a partir de nome) */
 export interface AuthUser {
   id: string;
   nome: string;
@@ -19,36 +19,41 @@ export type OrderStatus =
   | 'FINALIZADO'
   | 'CANCELADO';
 
-/** Item de pedido */
+/** Item de pedido — espelha OrderItemResponse */
 export interface OrderItem {
+  id: string;
   productId: string;
-  productName: string;
+  productNome: string;
   quantidade: number;
   precoUnitario: number;
+  subtotal: number;
 }
 
-/** Pedido resumido para listagem */
+/** Pedido resumido para listagem — espelha OrderResponse */
 export interface Order {
   id: string;
   numeroPedido: string;
   customerId: string;
   customerNome: string;
+  criadoPor?: string;
   status: OrderStatus;
   valorTotal: number;
   descontoAplicado?: number;
   tipoDesconto?: string;
   notas?: string;
+  createdAt?: string;
   dataConfirmado?: string;
   dataSeparado?: string;
   dataPronte?: string;
   dataFinalizado?: string;
+  finalizadoPor?: string;
   items: OrderItem[];
 }
 
 /** Status de estoque */
 export type StockStatus = 'OK' | 'ATENCAO' | 'CRITICO';
 
-/** Produto no estoque */
+/** Produto no estoque — espelha InventoryStatusResponse */
 export interface InventoryItem {
   id: string;
   nome: string;
@@ -58,21 +63,23 @@ export interface InventoryItem {
   reservada: number;
   estoqueMinimo: number;
   statusEstoque: StockStatus;
+  precoBase: number;
+  unidade: string;
 }
 
-/** Produto do catálogo */
+/** Produto do catálogo — espelha ProductResponse */
 export interface Product {
   id: string;
   nome: string;
   descricao?: string;
   sku: string;
-  precoUnitario: number;
+  precoBase: number;
   unidade: string;
   estoqueMinimo: number;
   ativo: boolean;
 }
 
-/** Cliente */
+/** Cliente — espelha CustomerResponse / CustomerDetailResponse */
 export interface Customer {
   id: string;
   nome: string;
@@ -81,12 +88,13 @@ export interface Customer {
   cnpj?: string;
   endereco?: string;
   contatoPrincipal?: string;
+  dadosAdicionais?: Record<string, unknown>;
   totalPedidos?: number;
   valorTotalGasto?: number;
   ultimaCompra?: string;
 }
 
-/** Comissão de vendedor */
+/** Comissão de vendedor — espelha CommissionResponse */
 export type CommissionStatus = 'PENDENTE' | 'PAGO' | 'CANCELADO';
 
 export interface Commission {
@@ -103,13 +111,16 @@ export interface Commission {
   status: CommissionStatus;
 }
 
-/** Devolução */
+/** Devolução — espelha ReturnResponse */
 export type ReturnStatus = 'PENDENTE' | 'APROVADO' | 'REJEITADO';
 
 export interface ReturnItem {
+  id: string;
   productId: string;
-  productName: string;
+  productNome: string;
   quantidade: number;
+  precoUnitario: number;
+  subtotal: number;
   motivo?: string;
 }
 
@@ -126,7 +137,7 @@ export interface Return {
   items: ReturnItem[];
 }
 
-/** Desempenho de vendedor */
+/** Desempenho de vendedor — espelha SellerPerformanceResponse */
 export interface SellerPerformance {
   vendedorId: string;
   vendedorNome: string;
@@ -136,8 +147,8 @@ export interface SellerPerformance {
   quantidadeUnidades: number;
 }
 
-/** Movimentação de estoque */
-export type MovementType = 'IN' | 'OUT' | 'ADJUSTMENT';
+/** Movimentação de estoque — espelha InventoryMovementResponse */
+export type MovementType = 'IN' | 'OUT';
 
 export interface InventoryMovement {
   id: string;
@@ -145,13 +156,14 @@ export interface InventoryMovement {
   productNome: string;
   tipo: MovementType;
   quantidade: number;
-  motivo?: string;
+  motivo: string;
+  referenciaId?: string;
   referenciaTipo?: string;
   criadoPorEmail?: string;
   createdAt: string;
 }
 
-/** Usuário para tela admin */
+/** Usuário para tela admin — espelha UserResponse */
 export interface SystemUser {
   id: string;
   nome: string;
