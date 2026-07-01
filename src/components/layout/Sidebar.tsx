@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface NavSection {
   title: string;
@@ -31,6 +32,7 @@ const adminItem = { label: 'Administração', path: '/admin' };
 /** Sidebar de navegação neumórfica com seções e perfil do usuário */
 export function Sidebar() {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -103,9 +105,18 @@ export function Sidebar() {
         </NavLink>
       )}
 
+      {/* Toggle de tema */}
+      <button
+        onClick={toggleTheme}
+        className="mt-auto mb-2 w-full px-3.5 py-2 rounded-[10px] border-none cursor-pointer text-[11px] font-bold uppercase tracking-[0.8px] transition-all duration-150 neu-btn-sm"
+        style={{ fontFamily: 'inherit', background: 'var(--bg)', color: 'var(--text-soft)' }}
+      >
+        {theme === 'light' ? '☽  Modo Escuro' : '☀  Modo Claro'}
+      </button>
+
       {/* Perfil do usuário */}
       <div
-        className="mt-auto rounded-[14px] p-3 cursor-pointer"
+        className="rounded-[14px] p-3 cursor-pointer"
         style={{ background: 'var(--secondary-fade)' }}
         onClick={handleLogout}
         title="Clique para sair"
