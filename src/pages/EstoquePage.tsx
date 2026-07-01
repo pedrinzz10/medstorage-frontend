@@ -3,41 +3,8 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { StatCard } from '../components/ui/StatCard';
 import { StockBadge, StockBar } from '../components/ui/StockBadge';
 import { Button } from '../components/ui/Button';
+import { useApiResource } from '../lib/useApiResource';
 import type { InventoryItem, StockStatus } from '../types';
-
-/** Produtos de demonstração */
-const MOCK_INVENTORY: InventoryItem[] = [
-  {
-    id: 'p1', nome: 'Seringa 10 ml',
-    sku: 'SRG-10ML-001', precoBase: 2.50, unidade: 'unidade',
-    quantidadeAtual: 340, disponivel: 340, reservada: 0,
-    estoqueMinimo: 50, statusEstoque: 'OK',
-  },
-  {
-    id: 'p2', nome: 'Luva Nitrila P',
-    sku: 'LVN-P-100', precoBase: 45.00, unidade: 'caixa',
-    quantidadeAtual: 60, disponivel: 38, reservada: 22,
-    estoqueMinimo: 40, statusEstoque: 'ATENCAO',
-  },
-  {
-    id: 'p3', nome: 'Máscara Cirúrgica',
-    sku: 'MSK-CRG-50', precoBase: 22.00, unidade: 'caixa',
-    quantidadeAtual: 18, disponivel: 8, reservada: 10,
-    estoqueMinimo: 20, statusEstoque: 'CRITICO',
-  },
-  {
-    id: 'p4', nome: 'Gaze Estéril 10 cm',
-    sku: 'GZE-10C-100', precoBase: 12.00, unidade: 'pacote',
-    quantidadeAtual: 215, disponivel: 215, reservada: 0,
-    estoqueMinimo: 50, statusEstoque: 'OK',
-  },
-  {
-    id: 'p5', nome: 'Álcool 70% 1 L',
-    sku: 'ALC-70-1L', precoBase: 8.90, unidade: 'frasco',
-    quantidadeAtual: 15, disponivel: 5, reservada: 10,
-    estoqueMinimo: 20, statusEstoque: 'CRITICO',
-  },
-];
 
 const FILTERS: { label: string; value: StockStatus | 'TODOS' }[] = [
   { label: 'Todos', value: 'TODOS' },
@@ -60,9 +27,12 @@ export function EstoquePage() {
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<StockStatus | 'TODOS'>('TODOS');
 
-  const criticos = MOCK_INVENTORY.filter(i => i.statusEstoque === 'CRITICO');
+  const { data, loading, error, reload } = useApiResource<InventoryItem[]>('/api/inventory/status');
+  const inventory = data ?? [];
 
-  const filtered = MOCK_INVENTORY.filter(i => {
+  const criticos = inventory.filter(i => i.statusEstoque === 'CRITICO');
+
+  const filtered = inventory.filter(i => {
     const matchSearch =
       i.nome.toLowerCase().includes(search.toLowerCase()) ||
       i.sku.toLowerCase().includes(search.toLowerCase());
@@ -80,6 +50,22 @@ export function EstoquePage() {
         </h1>
         <Button variant="primary">+ Novo Produto</Button>
       </div>
+
+      {error && (
+        <div
+          className="flex items-center gap-3 px-5 py-3 rounded-[14px] mb-[22px] text-[13px] font-semibold"
+          style={{ background: 'var(--crit-bg)', color: 'var(--crit)' }}
+        >
+          {error} —{' '}
+          <button
+            className="underline cursor-pointer border-none bg-transparent font-semibold"
+            style={{ color: 'var(--crit)', fontFamily: 'inherit' }}
+            onClick={reload}
+          >
+            Tentar novamente
+          </button>
+        </div>
+      )}
 
       {/* Alerta de estoque crítico */}
       {criticos.length > 0 && (
@@ -104,9 +90,9 @@ export function EstoquePage() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         <StatCard
-          label="Produtos Ativos"
-          value={MOCK_INVENTORY.length}
-          sub="No catálogo ativo"
+          label="Produtos"
+          value={inventory.length}
+          sub="No catálogo"
           color="accent"
         />
         <StatCard
@@ -116,9 +102,9 @@ export function EstoquePage() {
           color="red"
         />
         <StatCard
-          label="Movimentações Hoje"
-          value={14}
-          sub="Entradas + saídas"
+          label="Reservado"
+          value={inventory.reduce((acc, i) => acc + i.reservada, 0)}
+          sub="Unidades alocadas"
           color="green"
         />
       </div>
@@ -154,7 +140,11 @@ export function EstoquePage() {
 
       {/* Grid de cards */}
       <div className="grid gap-[18px]" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
-        {filtered.map(item => (
+        {loading &&
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="neu-card rounded-[20px] p-[22px] h-[200px] animate-pulse" style={{ opacity: 0.6 }} />
+          ))}
+        {!loading && filtered.map(item => (
           <div
             key={item.id}
             className="neu-card rounded-[20px] p-[22px] flex flex-col gap-4 transition-transform duration-200 hover:-translate-y-0.5"
@@ -202,9 +192,9 @@ export function EstoquePage() {
           </div>
         ))}
 
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <p className="col-span-full text-center py-12 text-[13px]" style={{ color: 'var(--text-soft)' }}>
-            Nenhum produto encontrado.
+            {error ? 'Não foi possível carregar o estoque.' : 'Nenhum produto encontrado.'}
           </p>
         )}
       </div>
