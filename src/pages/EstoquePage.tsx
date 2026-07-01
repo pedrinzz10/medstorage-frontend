@@ -3,8 +3,12 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { StatCard } from '../components/ui/StatCard';
 import { StockBadge, StockBar } from '../components/ui/StockBadge';
 import { Button } from '../components/ui/Button';
+import { ProductModal } from '../components/products/ProductModal';
+import { MovementsModal } from '../components/products/MovementsModal';
+import { useAuth } from '../contexts/AuthContext';
+import { api } from '../lib/api';
 import { useApiResource } from '../lib/useApiResource';
-import type { InventoryItem, StockStatus } from '../types';
+import type { InventoryItem, Product, StockStatus } from '../types';
 
 const FILTERS: { label: string; value: StockStatus | 'TODOS' }[] = [
   { label: 'Todos', value: 'TODOS' },
@@ -24,13 +28,32 @@ function stockPercent(item: InventoryItem) {
  * Exibe grid de cards por produto com barra de nível e indicadores de reserva.
  */
 export function EstoquePage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const canRestock = user?.role === 'admin' || user?.role === 'gerente_estoque';
+
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<StockStatus | 'TODOS'>('TODOS');
+  const [productModal, setProductModal] = useState<Product | 'new' | null>(null);
+  const [movementsFor, setMovementsFor] = useState<InventoryItem | null>(null);
+  const [loadingEdit, setLoadingEdit] = useState<string | null>(null);
 
   const { data, loading, error, reload } = useApiResource<InventoryItem[]>('/api/inventory/status');
   const inventory = data ?? [];
 
   const criticos = inventory.filter(i => i.statusEstoque === 'CRITICO');
+
+  async function openEdit(item: InventoryItem) {
+    setLoadingEdit(item.id);
+    try {
+      const product = await api.get<Product>(`/api/products/${item.id}`);
+      setProductModal(product);
+    } catch (e) {
+      alert((e as Error).message || 'Erro ao carregar produto');
+    } finally {
+      setLoadingEdit(null);
+    }
+  }
 
   const filtered = inventory.filter(i => {
     const matchSearch =
@@ -42,13 +65,26 @@ export function EstoquePage() {
 
   return (
     <AppLayout>
+      {productModal !== null && (
+        <ProductModal product={productModal} onClose={() => setProductModal(null)} onSaved={reload} />
+      )}
+      {movementsFor && (
+        <MovementsModal
+          productId={movementsFor.id}
+          productNome={movementsFor.nome}
+          canRestock={canRestock}
+          onClose={() => setMovementsFor(null)}
+          onChanged={reload}
+        />
+      )}
+
       {/* Cabeçalho */}
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-[21px] font-extrabold tracking-[-0.5px]">
           Controle de{' '}
           <em className="text-[var(--accent)] not-italic">Estoque</em>
         </h1>
-        <Button variant="primary">+ Novo Produto</Button>
+        {isAdmin && <Button variant="primary" onClick={() => setProductModal('new')}>+ Novo Produto</Button>}
       </div>
 
       {error && (
@@ -186,8 +222,12 @@ export function EstoquePage() {
 
             {/* Ações */}
             <div className="flex gap-2">
-              <Button variant="row" className="flex-1 text-center">Editar</Button>
-              <Button variant="row" className="flex-1 text-center">Movimentações</Button>
+              {isAdmin && (
+                <Button variant="row" className="flex-1 text-center" disabled={loadingEdit === item.id} onClick={() => openEdit(item)}>
+                  {loadingEdit === item.id ? '…' : 'Editar'}
+                </Button>
+              )}
+              <Button variant="row" className="flex-1 text-center" onClick={() => setMovementsFor(item)}>Movimentações</Button>
             </div>
           </div>
         ))}
