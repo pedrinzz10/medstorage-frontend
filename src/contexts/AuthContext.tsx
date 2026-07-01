@@ -1,65 +1,69 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
-import type { AuthUser } from '../types';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { api } from '../lib/api';
+import type { AuthUser, Role } from '../types';
 
 interface AuthContextValue {
   user: AuthUser | null;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
+interface UserSummaryResponse {
+  id: string;
+  email: string;
+  nome: string;
+  role: Role;
+}
+
+interface ValidateResponse {
+  valid: boolean;
+  email: string;
+  role: string;
+}
+
+function toAuthUser(u: UserSummaryResponse): AuthUser {
+  const words = u.nome.trim().split(/\s+/);
+  const initials = words.length >= 2
+    ? (words[0][0] + words[words.length - 1][0]).toUpperCase()
+    : u.nome.slice(0, 2).toUpperCase();
+  return { id: u.id, nome: u.nome, email: u.email, role: u.role, initials };
+}
+
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/** Usuários simulados para prototipagem da UI */
-const MOCK_USERS: Record<string, AuthUser> = {
-  'admin@distribuidor.com': {
-    id: '1',
-    nome: 'Administrador',
-    email: 'admin@distribuidor.com',
-    role: 'admin',
-    initials: 'AD',
-  },
-  'gerente@distribuidor.com': {
-    id: '2',
-    nome: 'Carlos Gerente',
-    email: 'gerente@distribuidor.com',
-    role: 'gerente_estoque',
-    initials: 'GE',
-  },
-  'vendedor1@distribuidor.com': {
-    id: '3',
-    nome: 'Vendedor Um',
-    email: 'vendedor1@distribuidor.com',
-    role: 'vendedor',
-    initials: 'V1',
-  },
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(() => {
-    try {
-      const saved = sessionStorage.getItem('ms-user');
-      return saved ? (JSON.parse(saved) as AuthUser) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  async function login(email: string, _password: string) {
-    /* Em produção: POST /api/auth/login */
-    await new Promise(r => setTimeout(r, 600));
-    const found = MOCK_USERS[email];
-    if (!found) throw new Error('Credenciais inválidas');
-    sessionStorage.setItem('ms-user', JSON.stringify(found));
-    setUser(found);
+  useEffect(() => {
+    const stored = sessionStorage.getItem('ms-user');
+    if (!stored) { setLoading(false); return; }
+
+    api.get<ValidateResponse>('/api/auth/validate')
+      .then(v => {
+        if (v.valid) setUser(JSON.parse(stored) as AuthUser);
+        else sessionStorage.removeItem('ms-user');
+      })
+      .catch(() => sessionStorage.removeItem('ms-user'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function login(email: string, password: string) {
+    const u = await api.post<UserSummaryResponse>('/api/auth/login', { email, password });
+    const authUser = toAuthUser(u);
+    sessionStorage.setItem('ms-user', JSON.stringify(authUser));
+    setUser(authUser);
   }
 
   function logout() {
+    api.post('/api/auth/logout').catch(() => null);
     sessionStorage.removeItem('ms-user');
     setUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
