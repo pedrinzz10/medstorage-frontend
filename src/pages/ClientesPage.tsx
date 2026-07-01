@@ -1,22 +1,25 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { Button } from '../components/ui/Button';
 import { StatCard } from '../components/ui/StatCard';
+import { api, type PageResponse } from '../lib/api';
+import { useApiResource } from '../lib/useApiResource';
 import type { Customer } from '../types';
-
-const MOCK_CUSTOMERS: Customer[] = [
-  { id:'1', nome:'Hospital São Luís',     email:'compras@saoluis.com.br',   telefone:'(98) 3212-4000', cnpj:'12.345.678/0001-90', endereco:'Rua dos Remédios, 100 — São Luís/MA', contatoPrincipal:'Dra. Fernanda Alves',   totalPedidos:24, valorTotalGasto:87400,  ultimaCompra:'2025-06-30' },
-  { id:'2', nome:'Clínica Vida',          email:'admin@clinicavida.com',    telefone:'(11) 3344-5566', cnpj:'23.456.789/0001-01', endereco:'Av. Paulista, 500 — São Paulo/SP',   contatoPrincipal:'Sr. Roberto Moura',     totalPedidos:18, valorTotalGasto:54200,  ultimaCompra:'2025-06-30' },
-  { id:'3', nome:'UBS Centro',            email:'ubs@prefeitura.gov.br',    telefone:'(21) 2222-3333', cnpj:'34.567.890/0001-12', endereco:'Rua da Saúde, 10 — Rio de Janeiro/RJ', contatoPrincipal:'Enf. Carla Reis',    totalPedidos:11, valorTotalGasto:21000,  ultimaCompra:'2025-06-29' },
-  { id:'4', nome:'Hospital Regional',     email:'suprimentos@hospreg.com', telefone:'(31) 3444-5555', cnpj:'45.678.901/0001-23', endereco:'Av. do Contorno, 1200 — BH/MG',      contatoPrincipal:'Sr. Marcos Duarte',     totalPedidos:32, valorTotalGasto:143600, ultimaCompra:'2025-06-29' },
-  { id:'5', nome:'Laboratório Alpha',     email:'lab@alphasaude.com',       telefone:'(85) 3211-0000', cnpj:'56.789.012/0001-34', endereco:'Rua dos Laboratoristas, 55 — Fortaleza/CE', contatoPrincipal:'Dra. Julia Pinto',  totalPedidos: 7, valorTotalGasto:18400,  ultimaCompra:'2025-06-28' },
-  { id:'6', nome:'Farmácia Central',      email:'pedidos@farmaciacentral.com', telefone:'(51) 3101-2020', cnpj:'67.890.123/0001-45', endereco:'Av. Independência, 88 — Porto Alegre/RS', contatoPrincipal:'Sra. Patrícia Luz', totalPedidos:15, valorTotalGasto:36800,  ultimaCompra:'2025-06-28' },
-];
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(n);
 
 function CustomerModal({ customer, onClose }: { customer: Customer; onClose: () => void }) {
+  // A lista traz só dados básicos; os agregados (pedidos, volume, última
+  // compra) vêm do detalhe. Busca o detalhe ao abrir o modal.
+  const [detail, setDetail] = useState<Customer>(customer);
+  useEffect(() => {
+    api.get<Customer>(`/api/customers/${customer.id}`)
+      .then(setDetail)
+      .catch(() => { /* mantém dados básicos se o detalhe falhar */ });
+  }, [customer.id]);
+  customer = detail;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -85,14 +88,17 @@ export function ClientesPage() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Customer | null>(null);
 
-  const filtered = MOCK_CUSTOMERS.filter(c =>
+  const { data, loading, error, reload } = useApiResource<PageResponse<Customer>>('/api/customers?page=0&size=100&sort=nome,asc');
+  const customers = data?.content ?? [];
+
+  const filtered = customers.filter(c =>
     c.nome.toLowerCase().includes(search.toLowerCase()) ||
     (c.cnpj ?? '').includes(search) ||
     c.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  const totalGasto = MOCK_CUSTOMERS.reduce((s, c) => s + (c.valorTotalGasto ?? 0), 0);
-  const totalPedidos = MOCK_CUSTOMERS.reduce((s, c) => s + (c.totalPedidos ?? 0), 0);
+  const comCnpj = customers.filter(c => c.cnpj).length;
+  const comContato = customers.filter(c => c.contatoPrincipal).length;
 
   return (
     <AppLayout>
@@ -105,11 +111,20 @@ export function ClientesPage() {
         <Button variant="primary">+ Novo Cliente</Button>
       </div>
 
+      {error && (
+        <div className="px-5 py-3 rounded-[14px] mb-5 text-[13px] font-semibold flex items-center gap-3"
+          style={{ background: 'var(--crit-bg)', color: 'var(--crit)' }}>
+          {error} —{' '}
+          <button className="underline cursor-pointer border-none bg-transparent font-semibold"
+            style={{ color: 'var(--crit)', fontFamily: 'inherit' }} onClick={reload}>Tentar novamente</button>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
-        <StatCard label="Total Clientes"  value={String(MOCK_CUSTOMERS.length)} sub="cadastrados"           color="accent" />
-        <StatCard label="Total Pedidos"   value={String(totalPedidos)}           sub="histórico"             color="green"  />
-        <StatCard label="Volume Total"    value={fmt(totalGasto)}                sub="faturado p/ clientes"  color="accent" />
-        <StatCard label="Ticket Médio"    value={fmt(totalGasto / totalPedidos)} sub="por pedido"            color="amber"  />
+        <StatCard label="Total Clientes" value={String(data?.totalElements ?? customers.length)} sub="cadastrados"       color="accent" />
+        <StatCard label="Com CNPJ"       value={String(comCnpj)}                                  sub="pessoa jurídica"    color="green"  />
+        <StatCard label="Com Contato"    value={String(comContato)}                               sub="contato principal"  color="amber"  />
+        <StatCard label="Exibidos"       value={String(filtered.length)}                          sub="na busca atual"     color="accent" />
       </div>
 
       {/* Barra de busca */}
@@ -130,7 +145,7 @@ export function ClientesPage() {
           <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1.5px solid var(--border)' }}>
-                {['Cliente', 'CNPJ', 'Contato', 'Pedidos', 'Volume Total', 'Última Compra', ''].map(h => (
+                {['Cliente', 'CNPJ', 'Contato', 'Telefone', 'Endereço', ''].map(h => (
                   <th key={h} className="text-left py-4 px-5 font-bold text-[11px] uppercase tracking-[0.8px]"
                     style={{ color: 'var(--text-soft)' }}>
                     {h}
@@ -139,14 +154,17 @@ export function ClientesPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 && (
+              {loading && (
+                <tr><td colSpan={6} className="py-12 text-center" style={{ color: 'var(--text-soft)' }}>Carregando…</td></tr>
+              )}
+              {!loading && filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center" style={{ color: 'var(--text-soft)' }}>
-                    Nenhum cliente encontrado
+                  <td colSpan={6} className="py-12 text-center" style={{ color: 'var(--text-soft)' }}>
+                    {error ? 'Não foi possível carregar os clientes' : 'Nenhum cliente encontrado'}
                   </td>
                 </tr>
               )}
-              {filtered.map((c, i) => (
+              {!loading && filtered.map((c, i) => (
                 <tr key={c.id}
                   style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none' }}
                   className="transition-all duration-150"
@@ -167,13 +185,8 @@ export function ClientesPage() {
                   </td>
                   <td className="py-4 px-5" style={{ color: 'var(--text-muted)' }}>{c.cnpj ?? '—'}</td>
                   <td className="py-4 px-5" style={{ color: 'var(--text-muted)' }}>{c.contatoPrincipal ?? '—'}</td>
-                  <td className="py-4 px-5 font-semibold">{c.totalPedidos ?? 0}</td>
-                  <td className="py-4 px-5 font-bold" style={{ color: 'var(--accent)' }}>
-                    {fmt(c.valorTotalGasto ?? 0)}
-                  </td>
-                  <td className="py-4 px-5" style={{ color: 'var(--text-muted)' }}>
-                    {c.ultimaCompra ? new Date(c.ultimaCompra).toLocaleDateString('pt-BR') : '—'}
-                  </td>
+                  <td className="py-4 px-5" style={{ color: 'var(--text-muted)' }}>{c.telefone ?? '—'}</td>
+                  <td className="py-4 px-5 max-w-[240px] truncate" style={{ color: 'var(--text-muted)' }}>{c.endereco ?? '—'}</td>
                   <td className="py-4 px-5">
                     <Button variant="row" onClick={() => setSelected(c)}>Ver</Button>
                   </td>
