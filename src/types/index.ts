@@ -187,6 +187,32 @@ export interface BatchOrderTrace {
   dataConsumo: string;
 }
 
+/** Material consignado — espelha ConsignmentResponse/ConsignmentItemResponse */
+export type ConsignmentStatus = 'ATIVO' | 'ENCERRADO';
+
+export interface ConsignmentItem {
+  id: string;
+  productId: string;
+  productNome: string;
+  lote?: string;
+  validade?: string;
+  quantidadeEnviada: number;
+  quantidadeUsada: number;
+  quantidadeDevolvida: number;
+  saldoDisponivel: number;
+  precoUnitario: number;
+}
+
+export interface Consignment {
+  id: string;
+  customerId: string;
+  customerNome: string;
+  status: ConsignmentStatus;
+  observacoes?: string;
+  createdAt: string;
+  items: ConsignmentItem[];
+}
+
 /** Movimentação de estoque — espelha InventoryMovementResponse */
 export type MovementType = 'IN' | 'OUT';
 
