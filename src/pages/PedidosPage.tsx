@@ -8,33 +8,33 @@ import type { Order, OrderStatus } from '../types';
 /** Dados de exemplo para prototipagem */
 const MOCK_ORDERS: Order[] = [
   {
-    id: '1', numero: 'PED-2025-001', clienteNome: 'Hospital São Luís',
-    totalItens: 3, valorTotal: 1240, dataCriacao: '30/06/2025',
+    id: '1', numeroPedido: 'PED-2025-001', customerId: 'c1', customerNome: 'Hospital São Luís',
+    valorTotal: 1240, createdAt: '2025-06-30T08:00:00',
     status: 'CRIADO', items: [],
   },
   {
-    id: '2', numero: 'PED-2025-002', clienteNome: 'Clínica Vida',
-    totalItens: 5, valorTotal: 3800, dataCriacao: '30/06/2025',
+    id: '2', numeroPedido: 'PED-2025-002', customerId: 'c2', customerNome: 'Clínica Vida',
+    valorTotal: 3800, createdAt: '2025-06-30T09:15:00',
     status: 'CONFIRMADO', items: [],
   },
   {
-    id: '3', numero: 'PED-2025-003', clienteNome: 'UBS Centro',
-    totalItens: 2, valorTotal: 560, dataCriacao: '29/06/2025',
+    id: '3', numeroPedido: 'PED-2025-003', customerId: 'c3', customerNome: 'UBS Centro',
+    valorTotal: 560, createdAt: '2025-06-29T14:00:00',
     status: 'SEPARADO', items: [],
   },
   {
-    id: '4', numero: 'PED-2025-004', clienteNome: 'Hospital Regional',
-    totalItens: 8, valorTotal: 6120, dataCriacao: '29/06/2025',
+    id: '4', numeroPedido: 'PED-2025-004', customerId: 'c4', customerNome: 'Hospital Regional',
+    valorTotal: 6120, createdAt: '2025-06-29T10:30:00',
     status: 'PRONTO', items: [],
   },
   {
-    id: '5', numero: 'PED-2025-005', clienteNome: 'Laboratório Alpha',
-    totalItens: 1, valorTotal: 240, dataCriacao: '28/06/2025',
+    id: '5', numeroPedido: 'PED-2025-005', customerId: 'c5', customerNome: 'Laboratório Alpha',
+    valorTotal: 240, createdAt: '2025-06-28T16:45:00',
     status: 'FINALIZADO', items: [],
   },
   {
-    id: '6', numero: 'PED-2025-006', clienteNome: 'Farmácia Central',
-    totalItens: 4, valorTotal: 980, dataCriacao: '28/06/2025',
+    id: '6', numeroPedido: 'PED-2025-006', customerId: 'c6', customerNome: 'Farmácia Central',
+    valorTotal: 980, createdAt: '2025-06-28T11:00:00',
     status: 'CANCELADO', items: [],
   },
 ];
@@ -64,8 +64,8 @@ export function PedidosPage() {
 
   const filtered = MOCK_ORDERS.filter(o => {
     const matchSearch =
-      o.numero.toLowerCase().includes(search.toLowerCase()) ||
-      o.clienteNome.toLowerCase().includes(search.toLowerCase());
+      o.numeroPedido.toLowerCase().includes(search.toLowerCase()) ||
+      o.customerNome.toLowerCase().includes(search.toLowerCase());
     const matchFilter = activeFilter === 'TODOS' || o.status === activeFilter;
     return matchSearch && matchFilter;
   });
@@ -166,19 +166,21 @@ export function PedidosPage() {
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
                   <td className="px-5 py-3.5 text-[13px] font-bold font-[var(--accent)] tabular-nums" style={{ color: 'var(--accent)' }}>
-                    {order.numero}
+                    {order.numeroPedido}
                   </td>
                   <td className="px-5 py-3.5 text-[13.5px] font-semibold">
-                    {order.clienteNome}
+                    {order.customerNome}
                   </td>
                   <td className="px-5 py-3.5 text-[13.5px]" style={{ color: 'var(--text-muted)' }}>
-                    {order.totalItens} {order.totalItens === 1 ? 'item' : 'itens'}
+                    {order.items.length} {order.items.length === 1 ? 'item' : 'itens'}
                   </td>
                   <td className="px-5 py-3.5 text-[13.5px] font-bold tabular-nums">
                     {formatBRL(order.valorTotal)}
                   </td>
                   <td className="px-5 py-3.5 text-[13.5px]" style={{ color: 'var(--text-muted)' }}>
-                    {order.dataCriacao}
+                    {order.createdAt
+                      ? new Date(order.createdAt).toLocaleDateString('pt-BR')
+                      : '—'}
                   </td>
                   <td className="px-5 py-3.5">
                     <StatusTag status={order.status} />

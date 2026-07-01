@@ -8,32 +8,32 @@ import type { InventoryItem, StockStatus } from '../types';
 /** Produtos de demonstração */
 const MOCK_INVENTORY: InventoryItem[] = [
   {
-    id: '1', productId: 'p1', productName: 'Seringa 10 ml',
-    sku: 'SRG-10ML-001', precoUnitario: 2.50, unidade: 'unidade',
+    id: 'p1', nome: 'Seringa 10 ml',
+    sku: 'SRG-10ML-001', precoBase: 2.50, unidade: 'unidade',
     quantidadeAtual: 340, disponivel: 340, reservada: 0,
     estoqueMinimo: 50, statusEstoque: 'OK',
   },
   {
-    id: '2', productId: 'p2', productName: 'Luva Nitrila P',
-    sku: 'LVN-P-100', precoUnitario: 45.00, unidade: 'caixa',
+    id: 'p2', nome: 'Luva Nitrila P',
+    sku: 'LVN-P-100', precoBase: 45.00, unidade: 'caixa',
     quantidadeAtual: 60, disponivel: 38, reservada: 22,
     estoqueMinimo: 40, statusEstoque: 'ATENCAO',
   },
   {
-    id: '3', productId: 'p3', productName: 'Máscara Cirúrgica',
-    sku: 'MSK-CRG-50', precoUnitario: 22.00, unidade: 'caixa',
+    id: 'p3', nome: 'Máscara Cirúrgica',
+    sku: 'MSK-CRG-50', precoBase: 22.00, unidade: 'caixa',
     quantidadeAtual: 18, disponivel: 8, reservada: 10,
     estoqueMinimo: 20, statusEstoque: 'CRITICO',
   },
   {
-    id: '4', productId: 'p4', productName: 'Gaze Estéril 10 cm',
-    sku: 'GZE-10C-100', precoUnitario: 12.00, unidade: 'pacote',
+    id: 'p4', nome: 'Gaze Estéril 10 cm',
+    sku: 'GZE-10C-100', precoBase: 12.00, unidade: 'pacote',
     quantidadeAtual: 215, disponivel: 215, reservada: 0,
     estoqueMinimo: 50, statusEstoque: 'OK',
   },
   {
-    id: '5', productId: 'p5', productName: 'Álcool 70% 1 L',
-    sku: 'ALC-70-1L', precoUnitario: 8.90, unidade: 'frasco',
+    id: 'p5', nome: 'Álcool 70% 1 L',
+    sku: 'ALC-70-1L', precoBase: 8.90, unidade: 'frasco',
     quantidadeAtual: 15, disponivel: 5, reservada: 10,
     estoqueMinimo: 20, statusEstoque: 'CRITICO',
   },
@@ -64,7 +64,7 @@ export function EstoquePage() {
 
   const filtered = MOCK_INVENTORY.filter(i => {
     const matchSearch =
-      i.productName.toLowerCase().includes(search.toLowerCase()) ||
+      i.nome.toLowerCase().includes(search.toLowerCase()) ||
       i.sku.toLowerCase().includes(search.toLowerCase());
     const matchFilter = activeFilter === 'TODOS' || i.statusEstoque === activeFilter;
     return matchSearch && matchFilter;
@@ -162,7 +162,7 @@ export function EstoquePage() {
             {/* Cabeçalho do card */}
             <div className="flex justify-between items-start gap-2.5">
               <div>
-                <p className="text-[14.5px] font-bold">{item.productName}</p>
+                <p className="text-[14.5px] font-bold">{item.nome}</p>
                 <p className="text-[11px] mt-0.5 tabular-nums tracking-[0.2px]" style={{ color: 'var(--text-muted)' }}>
                   {item.sku}
                 </p>
@@ -172,7 +172,7 @@ export function EstoquePage() {
 
             {/* Preço */}
             <p className="text-[19px] font-extrabold tracking-[-0.5px]" style={{ color: 'var(--accent)' }}>
-              {item.precoUnitario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}{' '}
+              {item.precoBase.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}{' '}
               <small className="text-[12px] font-normal" style={{ color: 'var(--text-muted)' }}>
                 / {item.unidade}
               </small>
