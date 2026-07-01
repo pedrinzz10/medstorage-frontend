@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../ui/Button';
 import { api, type PageResponse } from '../../lib/api';
 import { useApiResource } from '../../lib/useApiResource';
 import type { Consignment, ConsignmentCount } from '../../types';
 
 interface Line { consignmentItemId: string; quantidadeContada: string; loteConferido: string; validadeConferida: string }
+
+function emptyLine(item: { id: string; lote?: string; validade?: string }): Line {
+  return { consignmentItemId: item.id, quantidadeContada: '', loteConferido: item.lote ?? '', validadeConferida: item.validade ?? '' };
+}
 
 export function RegisterCountModal({ customerId, customerNome, visitId, onClose, onSaved }: {
   customerId: string;
@@ -13,23 +17,36 @@ export function RegisterCountModal({ customerId, customerNome, visitId, onClose,
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const { data } = useApiResource<PageResponse<Consignment>>(
+  const { data, loading } = useApiResource<PageResponse<Consignment>>(
     `/api/consignments?customerId=${customerId}&status=ATIVO&page=0&size=100`,
   );
   const activeItems = (data?.content ?? []).flatMap(c => c.items.filter(i => i.saldoDisponivel > 0));
 
-  const [lines, setLines] = useState<Line[]>(() =>
-    activeItems.map(i => ({ consignmentItemId: i.id, quantidadeContada: '', loteConferido: i.lote ?? '', validadeConferida: i.validade ?? '' })),
-  );
-  const [saving, setSaving]   = useState(false);
-  const [erro, setErro]       = useState<string | null>(null);
-  const [result, setResult]   = useState<ConsignmentCount | null>(null);
+  // Indexado por consignmentItemId (não por posição) para não quebrar quando
+  // a lista carrega de forma assíncrona depois do primeiro render.
+  const [lineByItemId, setLineByItemId] = useState<Record<string, Line>>({});
 
-  function updateLine(i: number, patch: Partial<Line>) {
-    setLines(prev => prev.map((l, idx) => idx === i ? { ...l, ...patch } : l));
+  useEffect(() => {
+    if (!data) return;
+    setLineByItemId(prev => {
+      const next: Record<string, Line> = {};
+      for (const item of activeItems) {
+        next[item.id] = prev[item.id] ?? emptyLine(item);
+      }
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
+  const [saving, setSaving] = useState(false);
+  const [erro, setErro]     = useState<string | null>(null);
+  const [result, setResult] = useState<ConsignmentCount | null>(null);
+
+  function updateLine(itemId: string, patch: Partial<Line>) {
+    setLineByItemId(prev => ({ ...prev, [itemId]: { ...(prev[itemId] ?? emptyLine({ id: itemId })), ...patch } }));
   }
 
-  const validLines = lines.filter(l => l.quantidadeContada !== '');
+  const validLines = Object.values(lineByItemId).filter(l => l.quantidadeContada !== '');
 
   async function handleSave() {
     setSaving(true);
@@ -100,33 +117,39 @@ export function RegisterCountModal({ customerId, customerNome, visitId, onClose,
           </div>
         ) : (
           <>
-            {activeItems.length === 0 && (
+            {loading && (
+              <p className="text-center py-8 text-[13px]" style={{ color: 'var(--text-soft)' }}>Carregando…</p>
+            )}
+            {!loading && activeItems.length === 0 && (
               <p className="text-center py-8 text-[13px]" style={{ color: 'var(--text-soft)' }}>
                 Nenhum item consignado ativo para este cliente.
               </p>
             )}
             <div className="flex flex-col gap-3">
-              {activeItems.map((item, i) => (
-                <div key={item.id} className="neu-inset rounded-[11px] p-4">
-                  <p className="text-[13px] font-semibold mb-2">
-                    {item.productNome} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>· saldo esperado {item.saldoDisponivel}</span>
-                  </p>
-                  <div className="flex gap-2 flex-wrap">
-                    <input type="number" min={0} placeholder="Qtd. contada" value={lines[i].quantidadeContada}
-                      onChange={e => updateLine(i, { quantidadeContada: e.target.value })}
-                      className="neu-input w-[110px] px-3 py-2.5 rounded-[10px] border-none outline-none text-[13px]"
-                      style={{ fontFamily: 'inherit', color: 'var(--text)' }} />
-                    <input type="text" placeholder="Lote conferido" value={lines[i].loteConferido}
-                      onChange={e => updateLine(i, { loteConferido: e.target.value })}
-                      className="neu-input flex-1 min-w-[120px] px-3 py-2.5 rounded-[10px] border-none outline-none text-[13px]"
-                      style={{ fontFamily: 'inherit', color: 'var(--text)' }} />
-                    <input type="date" value={lines[i].validadeConferida}
-                      onChange={e => updateLine(i, { validadeConferida: e.target.value })}
-                      className="neu-input w-[150px] px-3 py-2.5 rounded-[10px] border-none outline-none text-[13px]"
-                      style={{ fontFamily: 'inherit', color: 'var(--text)' }} />
+              {!loading && activeItems.map(item => {
+                const line = lineByItemId[item.id] ?? emptyLine(item);
+                return (
+                  <div key={item.id} className="neu-inset rounded-[11px] p-4">
+                    <p className="text-[13px] font-semibold mb-2">
+                      {item.productNome} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>· saldo esperado {item.saldoDisponivel}</span>
+                    </p>
+                    <div className="flex gap-2 flex-wrap">
+                      <input type="number" min={0} placeholder="Qtd. contada" value={line.quantidadeContada}
+                        onChange={e => updateLine(item.id, { quantidadeContada: e.target.value })}
+                        className="neu-input w-[110px] px-3 py-2.5 rounded-[10px] border-none outline-none text-[13px]"
+                        style={{ fontFamily: 'inherit', color: 'var(--text)' }} />
+                      <input type="text" placeholder="Lote conferido" value={line.loteConferido}
+                        onChange={e => updateLine(item.id, { loteConferido: e.target.value })}
+                        className="neu-input flex-1 min-w-[120px] px-3 py-2.5 rounded-[10px] border-none outline-none text-[13px]"
+                        style={{ fontFamily: 'inherit', color: 'var(--text)' }} />
+                      <input type="date" value={line.validadeConferida}
+                        onChange={e => updateLine(item.id, { validadeConferida: e.target.value })}
+                        className="neu-input w-[150px] px-3 py-2.5 rounded-[10px] border-none outline-none text-[13px]"
+                        style={{ fontFamily: 'inherit', color: 'var(--text)' }} />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </>
         )}
