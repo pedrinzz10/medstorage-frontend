@@ -1,119 +1,119 @@
 /* ============================================================
    MedStorage — Design System Neumórfico
-   Paleta: Ice (#f3f9fb) · Indigo (#474f85) · Turquoise (#51e3d4) · Warm (#f3ecd3)
+   Paleta: Mist (#f4f9f4) · Mint (#a7d7c5) · Sage (#74b49b) · Teal (#5c8d89)
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* ─────────────────────────────────────────
-   TEMA CLARO  (fundo ice, texto índigo)
+   TEMA CLARO  (fundo mist, texto teal)
 ───────────────────────────────────────── */
 :root,
 [data-theme='light'] {
   /* Superfície */
-  --bg:       #f3f9fb;
-  --shadow-d: #cdd5d8;
+  --bg:       #f4f9f4;
+  --shadow-d: #d7e6dd;
   --shadow-l: #ffffff;
 
   /* Tipografia */
-  --text:      #474f85;
-  --text-muted: #6870a8;
-  --text-soft:  #9aa0c5;
+  --text:      #33504c;
+  --text-muted: #5c8d89;
+  --text-soft:  #8fb5ac;
 
-  /* Accent principal — turquesa */
-  --accent:         #51e3d4;
-  --accent-h:       #3acfc0;
-  --accent-fade:    rgba(81, 227, 212, 0.13);
-  --text-on-accent: #474f85;
+  /* Accent principal — sage */
+  --accent:         #74b49b;
+  --accent-h:       #5f9c85;
+  --accent-fade:    rgba(116, 180, 155, 0.15);
+  --text-on-accent: #f4f9f4;
 
-  /* Secundário — índigo (usado em brand mark, avatars, sidebar) */
-  --secondary:       #474f85;
-  --secondary-h:     #363e6e;
-  --secondary-fade:  rgba(71, 79, 133, 0.09);
-  --secondary-text:  #f3f9fb;
+  /* Secundário — teal (usado em brand mark, avatars, sidebar) */
+  --secondary:       #5c8d89;
+  --secondary-h:     #4a726f;
+  --secondary-fade:  rgba(92, 141, 137, 0.10);
+  --secondary-text:  #f4f9f4;
 
-  /* Warm cream — acentos quentes */
-  --warm:       #f3ecd3;
-  --warm-fade:  rgba(243, 236, 211, 0.6);
-  --warm-text:  #7a5c2e;
+  /* Mint — acentos suaves */
+  --warm:       #a7d7c5;
+  --warm-fade:  rgba(167, 215, 197, 0.5);
+  --warm-text:  #33504c;
 
   /* Navegação */
-  --nav-active: rgba(81, 227, 212, 0.14);
-  --border:     rgba(71, 79, 133, 0.10);
+  --nav-active: rgba(116, 180, 155, 0.16);
+  --border:     rgba(92, 141, 137, 0.14);
 
   /* ── Status de pedido ─────────────────── */
-  --tag-pend:       #f3ecd3; --tag-pend-t:    #7a5c2e; --tag-pend-dot:    #d4a852;
-  --tag-confirm:    rgba(71,79,133,.10); --tag-confirm-t: #474f85; --tag-confirm-dot: #474f85;
-  --tag-sep:        rgba(81,227,212,.13); --tag-sep-t:   #2aafa2; --tag-sep-dot:     #51e3d4;
-  --tag-pronto:     rgba(34,197,94,.10);  --tag-pronto-t: #15803d; --tag-pronto-dot: #22c55e;
-  --tag-fin:        rgba(20,184,166,.12); --tag-fin-t:   #0f766e; --tag-fin-dot:     #14b8a6;
-  --tag-canc:       rgba(239,68,68,.09);  --tag-canc-t:  #b91c1c; --tag-canc-dot:    #ef4444;
+  --tag-pend:       rgba(167,215,197,.45); --tag-pend-t:    #33504c; --tag-pend-dot:    #5c8d89;
+  --tag-confirm:    rgba(92,141,137,.10);  --tag-confirm-t: #5c8d89; --tag-confirm-dot: #5c8d89;
+  --tag-sep:        rgba(116,180,155,.15); --tag-sep-t:     #4a8a72; --tag-sep-dot:     #74b49b;
+  --tag-pronto:     rgba(34,197,94,.10);   --tag-pronto-t: #15803d; --tag-pronto-dot: #22c55e;
+  --tag-fin:        rgba(20,184,166,.12);  --tag-fin-t:   #0f766e; --tag-fin-dot:     #14b8a6;
+  --tag-canc:       rgba(239,68,68,.09);   --tag-canc-t:  #b91c1c; --tag-canc-dot:    #ef4444;
 
   /* ── Estoque ──────────────────────────── */
-  --ok:      #0f9e87; --ok-bg:   rgba(15,158,135,.10); --ok-bar:   #51e3d4;
+  --ok:      #3f8a76; --ok-bg:   rgba(116,180,155,.14); --ok-bar:   #74b49b;
   --warn:    #b45309; --warn-bg: rgba(180,83,9,.10);   --warn-bar: #f59e0b;
   --crit:    #b91c1c; --crit-bg: rgba(185,28,28,.09);  --crit-bar: #ef4444;
 
   /* ── Roles ────────────────────────────── */
-  --role-admin-bg: rgba(71,79,133,.11);   --role-admin-t: #474f85;
-  --role-ger-bg:   rgba(81,227,212,.13);  --role-ger-t:   #0f766e;
-  --role-vnd-bg:   rgba(243,236,211,.80); --role-vnd-t:   #7a5c2e;
-  --on-t:  #0f9e87;
+  --role-admin-bg: rgba(92,141,137,.12);  --role-admin-t: #5c8d89;
+  --role-ger-bg:   rgba(116,180,155,.15); --role-ger-t:   #4a8a72;
+  --role-vnd-bg:   rgba(167,215,197,.55); --role-vnd-t:   #33504c;
+  --on-t:  #3f8a76;
   --off-t: #b91c1c;
-  --pill-ok-bg:   rgba(15,158,135,.10); --pill-ok-t:   #0f766e;
-  --pill-warn-bg: rgba(243,236,211,.80); --pill-warn-t: #7a5c2e;
+  --pill-ok-bg:   rgba(116,180,155,.14); --pill-ok-t:   #4a8a72;
+  --pill-warn-bg: rgba(167,215,197,.55); --pill-warn-t: #33504c;
 
   /* Cor semântica de contagem/crescimento */
   --green: #16a34a;
 }
 
 /* ─────────────────────────────────────────
-   TEMA ESCURO  (fundo índigo, texto ice)
+   TEMA ESCURO  (fundo teal profundo, texto mist)
 ───────────────────────────────────────── */
 [data-theme='dark'] {
-  --bg:       #474f85;
-  --shadow-d: #363c6a;
-  --shadow-l: #5860a0;
+  --bg:       #2e4744;
+  --shadow-d: #22332f;
+  --shadow-l: #3f625d;
 
-  --text:       #f3f9fb;
-  --text-muted: #b0b6d8;
-  --text-soft:  #737ab8;
+  --text:       #f4f9f4;
+  --text-muted: #bcd6cd;
+  --text-soft:  #7fa89d;
 
-  --accent:         #51e3d4;
-  --accent-h:       #6aece0;
-  --accent-fade:    rgba(81, 227, 212, 0.14);
-  --text-on-accent: #474f85;
+  --accent:         #74b49b;
+  --accent-h:       #8ec3ac;
+  --accent-fade:    rgba(116, 180, 155, 0.18);
+  --text-on-accent: #2e4744;
 
-  --secondary:      #f3ecd3;
-  --secondary-h:    #f9f4e6;
-  --secondary-fade: rgba(243, 236, 211, 0.10);
-  --secondary-text: #474f85;
+  --secondary:      #a7d7c5;
+  --secondary-h:    #b9e0d1;
+  --secondary-fade: rgba(167, 215, 197, 0.12);
+  --secondary-text: #2e4744;
 
-  --warm:       #f3ecd3;
-  --warm-fade:  rgba(243, 236, 211, 0.12);
-  --warm-text:  #f3ecd3;
+  --warm:       #a7d7c5;
+  --warm-fade:  rgba(167, 215, 197, 0.12);
+  --warm-text:  #a7d7c5;
 
-  --nav-active: rgba(81, 227, 212, 0.18);
-  --border:     rgba(243, 249, 251, 0.10);
+  --nav-active: rgba(116, 180, 155, 0.20);
+  --border:     rgba(244, 249, 244, 0.10);
 
-  --tag-pend:       rgba(243,236,211,.14); --tag-pend-t:    #f3ecd3; --tag-pend-dot:    #f3ecd3;
-  --tag-confirm:    rgba(243,249,251,.12); --tag-confirm-t: #b0b6d8; --tag-confirm-dot: #b0b6d8;
-  --tag-sep:        rgba(81,227,212,.16);  --tag-sep-t:     #51e3d4; --tag-sep-dot:     #51e3d4;
+  --tag-pend:       rgba(167,215,197,.14); --tag-pend-t:    #a7d7c5; --tag-pend-dot:    #a7d7c5;
+  --tag-confirm:    rgba(244,249,244,.12); --tag-confirm-t: #bcd6cd; --tag-confirm-dot: #bcd6cd;
+  --tag-sep:        rgba(116,180,155,.16); --tag-sep-t:     #74b49b; --tag-sep-dot:     #74b49b;
   --tag-pronto:     rgba(34,197,94,.14);   --tag-pronto-t:  #86efac; --tag-pronto-dot:  #4ade80;
   --tag-fin:        rgba(20,184,166,.16);  --tag-fin-t:     #5eead4; --tag-fin-dot:     #2dd4bf;
   --tag-canc:       rgba(239,68,68,.14);   --tag-canc-t:    #fca5a5; --tag-canc-dot:    #f87171;
 
-  --ok:      #51e3d4; --ok-bg:   rgba(81,227,212,.14);  --ok-bar:   #51e3d4;
-  --warn:    #f3ecd3; --warn-bg: rgba(243,236,211,.12);  --warn-bar: #fbbf24;
+  --ok:      #74b49b; --ok-bg:   rgba(116,180,155,.14); --ok-bar:   #74b49b;
+  --warn:    #fbbf24; --warn-bg: rgba(251,191,36,.14);  --warn-bar: #fbbf24;
   --crit:    #f87171; --crit-bg: rgba(248,113,113,.14);  --crit-bar: #f87171;
 
-  --role-admin-bg: rgba(243,249,251,.12); --role-admin-t: #f3f9fb;
-  --role-ger-bg:   rgba(81,227,212,.16);  --role-ger-t:   #51e3d4;
-  --role-vnd-bg:   rgba(243,236,211,.14); --role-vnd-t:   #f3ecd3;
-  --on-t:  #51e3d4;
+  --role-admin-bg: rgba(244,249,244,.12); --role-admin-t: #f4f9f4;
+  --role-ger-bg:   rgba(116,180,155,.16); --role-ger-t:   #74b49b;
+  --role-vnd-bg:   rgba(167,215,197,.14); --role-vnd-t:   #a7d7c5;
+  --on-t:  #74b49b;
   --off-t: #f87171;
-  --pill-ok-bg:   rgba(81,227,212,.14);  --pill-ok-t:   #51e3d4;
-  --pill-warn-bg: rgba(243,236,211,.12); --pill-warn-t: #f3ecd3;
+  --pill-ok-bg:   rgba(116,180,155,.14); --pill-ok-t:   #74b49b;
+  --pill-warn-bg: rgba(167,215,197,.12); --pill-warn-t: #a7d7c5;
 
   --green: #4ade80;
 }

@@ -488,10 +488,10 @@ export function LandingPage() {
         </p>
         <div className="flex gap-4">
           {[
-            { label: 'Ice #f3f9fb',     hex: '#f3f9fb' },
-            { label: 'Indigo #474f85',  hex: '#474f85' },
-            { label: 'Teal #51e3d4',    hex: '#51e3d4' },
-            { label: 'Warm #f3ecd3',    hex: '#f3ecd3' },
+            { label: 'Mist #f4f9f4', hex: '#f4f9f4' },
+            { label: 'Mint #a7d7c5', hex: '#a7d7c5' },
+            { label: 'Sage #74b49b', hex: '#74b49b' },
+            { label: 'Teal #5c8d89', hex: '#5c8d89' },
           ].map(c => (
             <div key={c.label} className="flex items-center gap-1.5">
               <span
